@@ -42,6 +42,11 @@ header {
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease-in-out;
+}
+
+header.header-hidden {
+  transform: translateY(-100%);
 }
 
 .top {
@@ -52,6 +57,7 @@ header {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 h1 {
@@ -69,6 +75,12 @@ h1 {
   margin-top: 4px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 #progress {
   background: rgba(129, 140, 248, 0.1);
   border: 1px solid rgba(129, 140, 248, 0.2);
@@ -76,6 +88,23 @@ h1 {
   padding: 6px 14px;
   border-radius: 20px;
   font-weight: 600;
+  font-size: 14px;
+}
+
+.auth-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.auth-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 nav {
@@ -561,15 +590,6 @@ a:hover { text-decoration: underline; }
 
 .crop-controls input[type="range"] { flex: 1; }
 
-.empty {
-  color: var(--text-muted);
-  padding: 32px;
-  background: var(--card-bg);
-  border: 1px dashed var(--border-color);
-  border-radius: 16px;
-  text-align: center;
-}
-
 .tutorial-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -777,6 +797,9 @@ a:hover { text-decoration: underline; }
 .tab-view { display: none; }
 .tab-view.active { display: block; }
 
+/* Control visibility for admin-only elements */
+body.guest .admin-only { display: none !important; }
+
 @media(max-width: 900px) {
   .summary { grid-template-columns: repeat(3, 1fr); }
 }
@@ -788,14 +811,17 @@ a:hover { text-decoration: underline; }
 }
 </style>
 </head>
-<body>
-<header>
+<body class="guest">
+<header id="mainHeader">
   <div class="top">
     <div>
       <h1>✨ Media Wall Tracker</h1>
       <div class="sub">Tools, materials, notes & design reference (Cloud Synced)</div>
     </div>
-    <div id="progress"></div>
+    <div class="header-right">
+      <div id="progress"></div>
+      <button id="authBtn" class="auth-btn" onclick="handleAuthClick()">🔒 Admin Login</button>
+    </div>
   </div>
   <nav>
     <button class="active" data-tab="need">Need to Buy</button>
@@ -804,6 +830,20 @@ a:hover { text-decoration: underline; }
     <button data-tab="notes">Notes 📝</button>
   </nav>
 </header>
+
+<!-- Auth Modal -->
+<div id="authModal" class="modal">
+  <div class="modalbox" style="width: min(380px, 100%);">
+    <h3>Admin Login</h3>
+    <p style="font-size:13px; color:var(--text-muted); margin-top:-10px;">Sign in to unlock editing and sync across devices.</p>
+    <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input id="loginPassword" type="password" placeholder="••••••••"></div>
+    <div class="modalbuttons">
+      <button class="cancel" onclick="document.getElementById('authModal').classList.remove('open')">Cancel</button>
+      <button class="save" onclick="performLogin()">Sign In</button>
+    </div>
+  </div>
+</div>
 
 <!-- Edit Item Modal -->
 <div id="modal" class="modal">
@@ -818,7 +858,7 @@ a:hover { text-decoration: underline; }
       <label>Item Thumbnail (File PNG/JPG or URL)</label>
       <input id="editImgFile" type="file" accept="image/*" style="margin-bottom:8px">
       <input id="editImgUrl" placeholder="Or paste image URL directly">
-      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForItem()">✂️ Crop / Zoom Image</button>
+      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForItem()">Crop / Zoom Image</button>
     </div>
     <div class="modalbuttons">
       <button class="cancel" onclick="closeModal()">Cancel</button>
@@ -830,7 +870,7 @@ a:hover { text-decoration: underline; }
 <!-- Interactive Crop Modal -->
 <div id="cropperModal" class="modal" style="z-index: 50;">
   <div class="modalbox" style="width: min(500px, 100%);">
-    <h3>✂️ Crop & Zoom Image</h3>
+    <h3>Crop & Zoom Image</h3>
     <p style="font-size: 12px; color: var(--text-muted); margin-top:-10px;">Drag image freely and zoom down to 0.1x. What you framed inside this box is exactly what displays on your card.</p>
     <div class="crop-container" id="cropBox">
       <canvas id="cropCanvas" class="crop-canvas"></canvas>
@@ -857,6 +897,7 @@ a:hover { text-decoration: underline; }
       <label>Thumbnail (Image File or Image URL)</label>
       <input id="tutImageFile" type="file" accept="image/*" style="margin-bottom:8px">
       <input id="tutImageUrl" placeholder="Or paste image URL directly">
+      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForTut()">Crop / Zoom Thumbnail</button>
     </div>
     <div class="modalbuttons">
       <button class="cancel" onclick="closeTutModal()">Cancel</button>
@@ -888,9 +929,9 @@ a:hover { text-decoration: underline; }
 </div>
 
 <main>
-  <div class="backup-toolbar">
+  <div class="backup-toolbar admin-only">
     <button class="action" onclick="exportData()">💾 Export Backup</button>
-    <button class="action" onclick="triggerImport()">📂 Import Backup</button>
+    <button class="action" onclick="triggerImport()">📁 Import Backup</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
   </div>
 
@@ -898,8 +939,8 @@ a:hover { text-decoration: underline; }
     
     <div class="reference-card">
       <div class="reference-header">
-        <h3>🖼️ Project Reference Goal</h3>
-        <button class="action edit" onclick="triggerRefUpload()">Change Photo 📷</button>
+        <h3>Project Reference Goal</h3>
+        <button class="action edit admin-only" onclick="triggerRefUpload()">Change Photo</button>
         <input type="file" id="refImageInput" accept="image/*" style="display:none" onchange="uploadRefImage(event)">
       </div>
       <div class="reference-content">
@@ -922,19 +963,19 @@ a:hover { text-decoration: underline; }
     </div>
 
     <section id="needSection" class="section">
-      <h2>🛒 Need to Buy</h2>
+      <h2>Need to Buy</h2>
       <div id="needGrid" class="grid"></div>
     </section>
 
     <section id="boughtSection" class="section">
-      <h2>✅ Bought</h2>
+      <h2>Bought</h2>
       <div id="boughtGrid" class="grid"></div>
     </section>
   </div>
 
   <div id="tutorialsView" class="tab-view">
     <section class="section">
-      <h2>🎥 Video Guides & Inspiration</h2>
+      <h2>Video Guides & Inspiration</h2>
       <div id="tutorialsGrid" class="grid"></div>
     </section>
   </div>
@@ -944,7 +985,7 @@ a:hover { text-decoration: underline; }
       <h2>📝 Project Notebook & Research</h2>
       <div class="notebook-container">
         
-        <div class="quick-note-box">
+        <div class="quick-note-box admin-only">
           <h3>✍️ Quick Add Note</h3>
           <div class="note-input-group">
             <input id="quickNoteTitle" placeholder="Topic or Header...">
@@ -968,10 +1009,60 @@ a:hover { text-decoration: underline; }
 </main>
 
 <script>
+// --- SUPABASE SETUP ---
 const SUPABASE_URL = 'https://hqkbzdabspiajjhheupg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Bxqbz0rbb3EIXUv1iuFryw_hbU-I7F7';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const ROW_ID = 1;
+
+let currentUser = null;
+
+async function checkAuthStatus() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  setAuthUser(session ? session.user : null);
+  
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    setAuthUser(session ? session.user : null);
+  });
+}
+
+function setAuthUser(user) {
+  currentUser = user;
+  const btn = document.getElementById("authBtn");
+  if (user) {
+    document.body.classList.remove("guest");
+    btn.textContent = "🔓 Logout (" + user.email.split('@')[0] + ")";
+  } else {
+    document.body.classList.add("guest");
+    btn.textContent = "🔒 Admin Login";
+  }
+  render();
+}
+
+function handleAuthClick() {
+  if (currentUser) {
+    if (confirm("Log out of admin session?")) {
+      supabaseClient.auth.signOut();
+    }
+  } else {
+    document.getElementById("authModal").classList.add("open");
+  }
+}
+
+async function performLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  if (!email || !password) { alert("Please enter email and password"); return; }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) {
+    alert("Login failed: " + error.message);
+  } else {
+    document.getElementById("authModal").classList.remove("open");
+    document.getElementById("loginPassword").value = "";
+    alert("Logged in successfully!");
+  }
+}
 
 const initialItems = [
 {name:"Mitre Saw",qty:1,price:134,link:"https://amzn.eu/d/047xyF6c"},
@@ -1008,6 +1099,7 @@ let notes = [
 const refKey="mediaWallRefImage_v1";
 
 async function save() {
+  if (!currentUser) return; // Block guests from syncing writes
   try {
     const backup = {
       items: items,
@@ -1048,6 +1140,7 @@ async function loadFromCloud() {
 function money(n){return "£"+n.toFixed(2).replace(".00","")}
 
 function exportData() {
+  if (!currentUser) return;
   const backup = {
     items: items,
     tutorials: tutorials,
@@ -1064,10 +1157,12 @@ function exportData() {
 }
 
 function triggerImport() {
+  if (!currentUser) return;
   document.getElementById("importFile").click();
 }
 
 function importData(e) {
+  if (!currentUser) return;
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -1080,9 +1175,9 @@ function importData(e) {
       if (backup.referenceImage) localStorage.setItem(refKey, backup.referenceImage);
       save();
       render();
-      alert("🎉 Backup imported & synced successfully!");
+      alert("Backup imported & synced successfully!");
     } catch (err) {
-      alert("❌ Error reading file. Make sure it's a valid backup JSON.");
+      alert("Error reading file. Make sure it's a valid backup JSON.");
     }
   };
   reader.readAsText(file);
@@ -1194,7 +1289,7 @@ cropBox.addEventListener("touchstart", (e) => {
 window.addEventListener("touchmove", (e) => {
   if (!cropState.isDragging || e.touches.length !== 1) return;
   cropState.x = e.touches[0].clientX - cropState.x;
-  cropState.y = e.touches[0].clientY - cropState.startY;
+  cropState.y = e.touches[0].clientY - cropState.y;
   drawCropCanvas();
 });
 
@@ -1221,6 +1316,27 @@ function triggerCropForItem() {
   });
 }
 
+document.getElementById("tutImageFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(file) {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      openCropper(evt.target.result, (croppedBase64) => {
+        document.getElementById("tutImageUrl").value = croppedBase64;
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+function triggerCropForTut() {
+  const url = document.getElementById("tutImageUrl").value.trim();
+  if(!url) { alert("Please provide an image file or image URL first to crop."); return; }
+  openCropper(url, (croppedBase64) => {
+    document.getElementById("tutImageUrl").value = croppedBase64;
+  });
+}
+
 function initRefImage(){
   const savedRef = localStorage.getItem(refKey);
   if(savedRef){
@@ -1229,10 +1345,12 @@ function initRefImage(){
 }
 
 function triggerRefUpload(){
+  if (!currentUser) return;
   document.getElementById("refImageInput").click();
 }
 
 function uploadRefImage(e){
+  if (!currentUser) return;
   const file = e.target.files[0];
   if(file){
     const reader = new FileReader();
@@ -1247,10 +1365,10 @@ function uploadRefImage(e){
   }
 }
 
-// Modal handling logic for items, tutorials, and notes
 let editingIndex = null;
 
 function openModal(index = null) {
+  if (!currentUser) return;
   editingIndex = index;
   const modal = document.getElementById("modal");
   if (index !== null) {
@@ -1280,6 +1398,7 @@ function closeModal() {
 }
 
 function saveItem() {
+  if (!currentUser) return;
   const name = document.getElementById("editName").value.trim();
   const qty = parseInt(document.getElementById("editQty").value) || 1;
   const price = parseFloat(document.getElementById("editPrice").value) || 0;
@@ -1303,12 +1422,14 @@ function saveItem() {
 }
 
 function toggleBuy(index) {
+  if (!currentUser) return;
   items[index].bought = !items[index].bought;
   save();
   render();
 }
 
 function deleteItem(index) {
+  if (!currentUser) return;
   if (confirm("Delete this item?")) {
     items.splice(index, 1);
     save();
@@ -1316,9 +1437,9 @@ function deleteItem(index) {
   }
 }
 
-// Tutorial modal handlers
 let editingTutIndex = null;
 function openTutModal(index = null) {
+  if (!currentUser) return;
   editingTutIndex = index;
   const modal = document.getElementById("tutModal");
   if (index !== null) {
@@ -1343,20 +1464,8 @@ function closeTutModal() {
   document.getElementById("tutModal").classList.remove("open");
 }
 
-document.getElementById("tutImageFile").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if(file) {
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      openCropper(evt.target.result, (croppedBase64) => {
-        document.getElementById("tutImageUrl").value = croppedBase64;
-      });
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
 function saveTutorial() {
+  if (!currentUser) return;
   const title = document.getElementById("tutTitle").value.trim();
   const link = document.getElementById("tutLink").value.trim();
   const note = document.getElementById("tutNote").value.trim();
@@ -1376,6 +1485,7 @@ function saveTutorial() {
 }
 
 function deleteTutorial(index) {
+  if (!currentUser) return;
   if (confirm("Delete this tutorial?")) {
     tutorials.splice(index, 1);
     saveTut();
@@ -1383,8 +1493,8 @@ function deleteTutorial(index) {
   }
 }
 
-// Notes handlers
 function addQuickNote() {
+  if (!currentUser) return;
   const title = document.getElementById("quickNoteTitle").value.trim();
   const category = document.getElementById("quickNoteCategory").value;
   const content = document.getElementById("quickNoteContent").value.trim();
@@ -1400,6 +1510,7 @@ function addQuickNote() {
 
 let editingNoteIndex = null;
 function editNote(index) {
+  if (!currentUser) return;
   editingNoteIndex = index;
   const n = notes[index];
   document.getElementById("editNoteTitle").value = n.title;
@@ -1413,6 +1524,7 @@ function closeNoteModal() {
 }
 
 function saveEditNote() {
+  if (!currentUser) return;
   const title = document.getElementById("editNoteTitle").value.trim();
   const category = document.getElementById("editNoteCategory").value;
   const content = document.getElementById("editNoteContent").value.trim();
@@ -1426,6 +1538,7 @@ function saveEditNote() {
 }
 
 function deleteNote(index) {
+  if (!currentUser) return;
   if (confirm("Delete this note?")) {
     notes.splice(index, 1);
     saveNotes();
@@ -1433,26 +1546,47 @@ function deleteNote(index) {
   }
 }
 
-// Tabs navigation
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".tab-view").forEach(v => v.classList.remove("active"));
     btn.classList.add("active");
     const target = btn.getAttribute("data-tab");
-    if(target === "need") document.getElementById("shoppingView").classList.add("active");
-    if(target === "bought") document.getElementById("shoppingView").classList.add("active");
+    if(target === "need" || target === "bought") {
+      document.getElementById("shoppingView").classList.add("active");
+      if(target === "bought") {
+        document.getElementById("boughtSection").scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
     if(target === "tutorials") document.getElementById("tutorialsView").classList.add("active");
     if(target === "notes") document.getElementById("notesView").classList.add("active");
   });
 });
+
+// Smart header hide/show on scroll
+let lastScrollY = window.scrollY;
+const headerEl = document.getElementById("mainHeader");
+
+window.addEventListener("scroll", () => {
+  const currentScrollY = window.scrollY;
+  if (currentScrollY > lastScrollY && currentScrollY > 80) {
+    headerEl.classList.add("header-hidden");
+  } else {
+    headerEl.classList.remove("header-hidden");
+  }
+  lastScrollY = currentScrollY;
+});
+
+let draggedIndex = null;
 
 function render() {
   const need = items.filter(x => !x.bought);
   const bought = items.filter(x => x.bought);
 
   document.getElementById("count").textContent = items.length;
-  document.getElementById("boughtCount").textContent = bought.length;
+  document.getElementById("boughtCount").textContent = `${bought.length}/${items.length}`;
 
   const spent = bought.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
   const remaining = need.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
@@ -1461,7 +1595,7 @@ function render() {
   document.getElementById("spent").textContent = money(spent);
   document.getElementById("remaining").textContent = money(remaining);
   document.getElementById("grand").textContent = money(grand);
-  document.getElementById("progress").textContent = `${Math.round((bought.length / (items.length || 1)) * 100)}% Complete`;
+  document.getElementById("progress").textContent = `${bought.length}/${items.length} bought`;
 
   // Render Need Grid
   const needGrid = document.getElementById("needGrid");
@@ -1470,7 +1604,43 @@ function render() {
     const originalIndex = items.indexOf(item);
     const div = document.createElement("div");
     div.className = "item";
+    div.draggable = currentUser !== null;
+
+    if (currentUser) {
+      div.addEventListener("dragstart", (e) => {
+        draggedIndex = originalIndex;
+        div.classList.add("dragging");
+      });
+
+      div.addEventListener("dragend", () => {
+        draggedIndex = null;
+        div.classList.remove("dragging");
+        document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over"));
+      });
+
+      div.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        div.classList.add("drag-over");
+      });
+
+      div.addEventListener("dragleave", () => {
+        div.classList.remove("drag-over");
+      });
+
+      div.addEventListener("drop", (e) => {
+        e.preventDefault();
+        div.classList.remove("drag-over");
+        if (draggedIndex !== null && draggedIndex !== originalIndex) {
+          const movedItem = items.splice(draggedIndex, 1)[0];
+          items.splice(originalIndex, 0, movedItem);
+          save();
+          render();
+        }
+      });
+    }
+
     div.innerHTML = `
+      ${currentUser ? `<div class="drag-handle" title="Drag to reorder">::</div>` : ''}
       ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
       <div class="row">
         <div>
@@ -1482,9 +1652,9 @@ function render() {
       </div>
       <div class="meta">
         <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
-        <div style="display:flex; gap:6px">
-          <button class="action edit" onclick="openModal(${originalIndex})">✏️</button>
-          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
+        <div class="admin-only" style="display:flex; gap:6px">
+          <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
           <button class="action buy" onclick="toggleBuy(${originalIndex})">Mark Bought ✓</button>
         </div>
       </div>
@@ -1492,11 +1662,13 @@ function render() {
     needGrid.appendChild(div);
   });
 
-  const addCardNeed = document.createElement("div");
-  addCardNeed.className = "add-card";
-  addCardNeed.innerHTML = "+ Add Item";
-  addCardNeed.onclick = () => openModal();
-  needGrid.appendChild(addCardNeed);
+  if (currentUser) {
+    const addCardNeed = document.createElement("div");
+    addCardNeed.className = "add-card";
+    addCardNeed.innerHTML = "+ Add Item";
+    addCardNeed.onclick = () => openModal();
+    needGrid.appendChild(addCardNeed);
+  }
 
   // Render Bought Grid
   const boughtGrid = document.getElementById("boughtGrid");
@@ -1505,7 +1677,43 @@ function render() {
     const originalIndex = items.indexOf(item);
     const div = document.createElement("div");
     div.className = "item bought";
+    div.draggable = currentUser !== null;
+
+    if (currentUser) {
+      div.addEventListener("dragstart", (e) => {
+        draggedIndex = originalIndex;
+        div.classList.add("dragging");
+      });
+
+      div.addEventListener("dragend", () => {
+        draggedIndex = null;
+        div.classList.remove("dragging");
+        document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over"));
+      });
+
+      div.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        div.classList.add("drag-over");
+      });
+
+      div.addEventListener("dragleave", () => {
+        div.classList.remove("drag-over");
+      });
+
+      div.addEventListener("drop", (e) => {
+        e.preventDefault();
+        div.classList.remove("drag-over");
+        if (draggedIndex !== null && draggedIndex !== originalIndex) {
+          const movedItem = items.splice(draggedIndex, 1)[0];
+          items.splice(originalIndex, 0, movedItem);
+          save();
+          render();
+        }
+      });
+    }
+
     div.innerHTML = `
+      ${currentUser ? `<div class="drag-handle" title="Drag to reorder">::</div>` : ''}
       ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
       <div class="row">
         <div>
@@ -1517,9 +1725,9 @@ function render() {
       </div>
       <div class="meta">
         <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
-        <div style="display:flex; gap:6px">
-          <button class="action edit" onclick="openModal(${originalIndex})">✏️</button>
-          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
+        <div class="admin-only" style="display:flex; gap:6px">
+          <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
           <button class="action undo" onclick="toggleBuy(${originalIndex})">Undo</button>
         </div>
       </div>
@@ -1542,9 +1750,9 @@ function render() {
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; pt:10px; border-top:1px solid var(--border-color)">
           ${t.link ? `<a href="${t.link}" target="_blank">Watch Guide ↗</a>` : '<span></span>'}
-          <div style="display:flex; gap:6px">
-            <button class="action edit" onclick="openTutModal(${index})">✏️</button>
-            <button class="action delete-btn" onclick="deleteTutorial(${index})">🗑️</button>
+          <div class="admin-only" style="display:flex; gap:6px">
+            <button class="action edit" onclick="openTutModal(${index})">✎</button>
+            <button class="action delete-btn" onclick="deleteTutorial(${index})">🗑</button>
           </div>
         </div>
       </div>
@@ -1552,11 +1760,13 @@ function render() {
     tutGrid.appendChild(div);
   });
 
-  const addCardTut = document.createElement("div");
-  addCardTut.className = "add-card";
-  addCardTut.innerHTML = "+ Add Tutorial";
-  addCardTut.onclick = () => openTutModal();
-  tutGrid.appendChild(addCardTut);
+  if (currentUser) {
+    const addCardTut = document.createElement("div");
+    addCardTut.className = "add-card";
+    addCardTut.innerHTML = "+ Add Tutorial";
+    addCardTut.onclick = () => openTutModal();
+    tutGrid.appendChild(addCardTut);
+  }
 
   // Render Notes Stream
   const notesStream = document.getElementById("notesStream");
@@ -1570,17 +1780,17 @@ function render() {
         <div class="entry-badge">${n.category}</div>
       </div>
       <div class="entry-body">${n.content}</div>
-      <div class="entry-footer">
-        <button class="action edit" onclick="editNote(${index})">✏️ Edit</button>
-        <button class="action delete-btn" onclick="deleteNote(${index})">🗑️ Delete</button>
+      <div class="entry-footer admin-only">
+        <button class="action edit" onclick="editNote(${index})">✎ Edit</button>
+        <button class="action delete-btn" onclick="deleteNote(${index})">🗑 Delete</button>
       </div>
     `;
     notesStream.appendChild(div);
   });
 }
 
-// Initial application load on startup
 window.onload = () => {
+  checkAuthStatus();
   loadFromCloud();
 };
 </script>
