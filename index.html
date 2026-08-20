@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Media Wall — Planning Hub</title>
+<!-- SUPABASE CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --bg-gradient: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 60%, #080d1a 100%);
@@ -791,7 +793,7 @@ a:hover { text-decoration: underline; }
   <div class="top">
     <div>
       <h1>✨ Media Wall Tracker</h1>
-      <div class="sub">Tools, materials, notes & design reference</div>
+      <div class="sub">Tools, materials, notes & design reference (Cloud Synced)</div>
     </div>
     <div id="progress"></div>
   </div>
@@ -966,6 +968,11 @@ a:hover { text-decoration: underline; }
 </main>
 
 <script>
+const SUPABASE_URL = 'https://hqkbzdabspiajjhheupg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Bxqbz0rbb3EIXUv1iuFryw_hbU-I7F7';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const ROW_ID = 1;
+
 const initialItems = [
 {name:"Mitre Saw",qty:1,price:134,link:"https://amzn.eu/d/047xyF6c"},
 {name:"Impact Driver",qty:1,price:40,link:"https://amzn.eu/d/03KsYcHS"},
@@ -990,23 +997,55 @@ const initialItems = [
 {name:"FC1 filler",qty:1,price:4.69,source:"Tool Station"}
 ];
 
-const key="mediaWallTracker_v2";
-const tutKey="mediaWallTutorials_v1";
-const refKey="mediaWallRefImage_v1";
-const notesKey="mediaWallNotes_v2";
-
-let items=JSON.parse(localStorage.getItem(key)||"null") || initialItems;
-let tutorials=JSON.parse(localStorage.getItem(tutKey)||"null") || [];
-let notes=JSON.parse(localStorage.getItem(notesKey)||"null") || [
+let items = initialItems;
+let tutorials = [];
+let notes = [
   {title:"Stud Wall Depth & Cable Clearance", category:"dimensions", content:"Leave at least 100mm gap behind TV recessed box to fit TV bracket and plug connectors comfortably."},
   {title:"MDF Edges & Priming", category:"material", content:"MDF cut edges soak up paint quickly. Prime edges with MR MDF primer or wood filler skim before sanding for clean edges."},
   {title:"Socket Placement", category:"electrical", content:"Position 4-gang or 6-gang extension lead inside lower fireplace cavity behind access panel."}
 ];
 
+const refKey="mediaWallRefImage_v1";
+
+async function save() {
+  try {
+    const backup = {
+      items: items,
+      tutorials: tutorials,
+      notes: notes,
+      referenceImage: localStorage.getItem(refKey) || ""
+    };
+    await supabaseClient.from('app_data').upsert({ id: ROW_ID, payload: backup });
+  } catch(e) {
+    console.error("Cloud save error:", e);
+  }
+}
+
+function saveTut() { save(); }
+function saveNotes() { save(); }
+
+async function loadFromCloud() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('app_data')
+      .select('payload')
+      .eq('id', ROW_ID)
+      .single();
+    
+    if (data && data.payload) {
+      if (data.payload.items) items = data.payload.items;
+      if (data.payload.tutorials) tutorials = data.payload.tutorials;
+      if (data.payload.notes) notes = data.payload.notes;
+      if (data.payload.referenceImage) localStorage.setItem(refKey, data.payload.referenceImage);
+    }
+  } catch(e) {
+    console.error("Cloud load error:", e);
+  }
+  render();
+  initRefImage();
+}
+
 function money(n){return "£"+n.toFixed(2).replace(".00","")}
-function save(){localStorage.setItem(key,JSON.stringify(items))}
-function saveTut(){localStorage.setItem(tutKey,JSON.stringify(tutorials))}
-function saveNotes(){localStorage.setItem(notesKey,JSON.stringify(notes))}
 
 function exportData() {
   const backup = {
@@ -1035,23 +1074,13 @@ function importData(e) {
   reader.onload = function(evt) {
     try {
       const backup = JSON.parse(evt.target.result);
-      if (backup.items) {
-        items = backup.items;
-        save();
-      }
-      if (backup.tutorials) {
-        tutorials = backup.tutorials;
-        saveTut();
-      }
-      if (backup.notes) {
-        notes = backup.notes;
-        saveNotes();
-      }
-      if (backup.referenceImage) {
-        localStorage.setItem(refKey, backup.referenceImage);
-      }
+      if (backup.items) items = backup.items;
+      if (backup.tutorials) tutorials = backup.tutorials;
+      if (backup.notes) notes = backup.notes;
+      if (backup.referenceImage) localStorage.setItem(refKey, backup.referenceImage);
+      save();
       render();
-      alert("🎉 Backup imported successfully!");
+      alert("🎉 Backup imported & synced successfully!");
     } catch (err) {
       alert("❌ Error reading file. Make sure it's a valid backup JSON.");
     }
@@ -1211,348 +1240,349 @@ function uploadRefImage(e){
       openCropper(evt.target.result, (croppedBase64) => {
         document.getElementById("referenceImgDisplay").src = croppedBase64;
         localStorage.setItem(refKey, croppedBase64);
+        save();
       });
     };
     reader.readAsDataURL(file);
   }
 }
 
-function render(){
- const need = items.filter(x => !x.bought);
- const bought = items.filter(x => x.bought);
+// Modal handling logic for items, tutorials, and notes
+let editingIndex = null;
 
- document.getElementById("count").textContent = items.length;
- document.getElementById("boughtCount").textContent = bought.length;
-
- const spent = bought.reduce((s, x) => s + x.price * x.qty, 0);
- const remaining = need.reduce((s, x) => s + x.price * x.qty, 0);
- const total = items.reduce((s, x) => s + x.price * x.qty, 0);
-
- document.getElementById("spent").textContent = money(spent);
- document.getElementById("remaining").textContent = money(remaining);
- document.getElementById("grand").textContent = money(total);
- document.getElementById("progress").textContent = `${bought.length}/${items.length} bought`;
-
- draw("needGrid", need, false); 
- draw("boughtGrid", bought, true);
- renderTutorials();
- renderNotes();
- initRefImage();
-}
-
-let draggedGlobalIndex = null;
-
-function draw(id,list,isBought){
- const el=document.getElementById(id);
- if(!list.length && isBought){el.innerHTML='<div class="empty">Nothing here yet 👀</div>';return}
- el.innerHTML=list.map((x)=>{
-   const idx=items.indexOf(x), total=x.price*x.qty;
-   const linkAttr = x.link ? `href="${escapeHtml(x.link)}" target="_blank" rel="noopener"` : (x.img ? `href="${escapeHtml(x.img)}" target="_blank" rel="noopener"` : '');
-   const thumbTag = (x.link || x.img) ? 'a' : 'div';
-
-   return `<article class="item ${x.bought?'bought':''}" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, ${idx})">
-     <div class="drag-handle" draggable="true" title="Drag to reorder" ondragstart="handleDragStart(event, ${idx})" ondragend="handleDragEnd(event)">⋮⋮</div>
-     ${x.img ? `<${thumbTag} ${linkAttr} class="item-thumb-box" title="Click to open item link/image">
-       <img src="${escapeHtml(x.img)}" alt="${escapeHtml(x.name)}">
-     </${thumbTag}>` : ''}
-     <div class="row">
-       <div><div class="name">${x.bought?'✓ ':''}${escapeHtml(x.name)}</div><div class="qty">Quantity: ${x.qty}${x.source?' · '+escapeHtml(x.source):''}</div></div>
-       <div style="display:flex;align-items:center;gap:7px">
-         <div class="price">${money(total)}</div>
-         <button class="action edit" title="Edit item" onclick="openEdit(${idx})">✎</button>
-         <button class="action delete-btn" title="Delete item" onclick="deleteItem(${idx})">🗑</button>
-       </div>
-     </div>
-     <div class="meta">
-       <div>${x.note?`<span class="tag">${escapeHtml(x.note)}</span>`:''} ${x.link?`<a href="${x.link}" target="_blank" rel="noopener">Open link ↗</a>`:''}</div>
-       <button class="action ${x.bought?'undo':'buy'}" onclick="toggle(${idx})">${x.bought?'↩ Undo':'✓ Bought'}</button>
-     </div>
-   </article>`
- }).join("") + (!isBought ? `<article class="item add-card" title="Add new item" onclick="openAdd()">+</article>` : "");
-}
-
-function handleDragStart(e, idx) {
-  draggedGlobalIndex = idx;
-  e.dataTransfer.effectAllowed = "move";
-  const card = e.target.closest(".item");
-  setTimeout(() => {
-    card.classList.add("dragging");
-  }, 0);
-}
-
-function handleDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = "move";
-  const card = e.target.closest(".item");
-  if (card && !card.classList.contains("add-card")) {
-    card.classList.add("drag-over");
+function openModal(index = null) {
+  editingIndex = index;
+  const modal = document.getElementById("modal");
+  if (index !== null) {
+    const item = items[index];
+    document.getElementById("modalTitle").textContent = "Edit item";
+    document.getElementById("editName").value = item.name || "";
+    document.getElementById("editQty").value = item.qty || 1;
+    document.getElementById("editPrice").value = item.price || 0;
+    document.getElementById("editLink").value = item.link || "";
+    document.getElementById("editNote").value = item.note || "";
+    document.getElementById("editImgUrl").value = item.img || "";
+  } else {
+    document.getElementById("modalTitle").textContent = "Add new item";
+    document.getElementById("editName").value = "";
+    document.getElementById("editQty").value = 1;
+    document.getElementById("editPrice").value = "";
+    document.getElementById("editLink").value = "";
+    document.getElementById("editNote").value = "";
+    document.getElementById("editImgUrl").value = "";
   }
+  document.getElementById("editImgFile").value = "";
+  modal.classList.add("open");
 }
 
-function handleDragLeave(e) {
-  const card = e.target.closest(".item");
-  if (card) {
-    card.classList.remove("drag-over");
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+}
+
+function saveItem() {
+  const name = document.getElementById("editName").value.trim();
+  const qty = parseInt(document.getElementById("editQty").value) || 1;
+  const price = parseFloat(document.getElementById("editPrice").value) || 0;
+  const link = document.getElementById("editLink").value.trim();
+  const note = document.getElementById("editNote").value.trim();
+  const img = document.getElementById("editImgUrl").value.trim();
+
+  if (!name) { alert("Please enter an item name"); return; }
+
+  const itemData = { name, qty, price, link, note, img };
+  if (editingIndex !== null) {
+    itemData.bought = items[editingIndex].bought;
+    items[editingIndex] = itemData;
+  } else {
+    items.push(itemData);
   }
+
+  save();
+  closeModal();
+  render();
 }
 
-function handleDrop(e, targetIdx) {
-  e.preventDefault();
-  const card = e.target.closest(".item");
-  if (card) card.classList.remove("drag-over");
-
-  if (draggedGlobalIndex === null || draggedGlobalIndex === targetIdx) return;
-
-  const movedItem = items.splice(draggedGlobalIndex, 1)[0];
-  items.splice(targetIdx, 0, movedItem);
+function toggleBuy(index) {
+  items[index].bought = !items[index].bought;
   save();
   render();
 }
 
-function handleDragEnd(e) {
-  draggedGlobalIndex = null;
-  document.querySelectorAll(".item").forEach(el => {
-    el.classList.remove("dragging");
-    el.classList.remove("drag-over");
-  });
-}
-
-function deleteItem(idx) {
-  if (confirm("Are you sure you want to delete this item?")) {
-    items.splice(idx, 1);
+function deleteItem(index) {
+  if (confirm("Delete this item?")) {
+    items.splice(index, 1);
     save();
     render();
   }
 }
 
-function renderTutorials(){
- const el=document.getElementById("tutorialsGrid");
- el.innerHTML=tutorials.map((t, idx)=>{
-   const linkAttr = t.link ? `href="${escapeHtml(t.link)}" target="_blank" rel="noopener"` : '';
-   const thumbTag = t.link ? 'a' : 'div';
-   return `<article class="tutorial-card">
-     <${thumbTag} ${linkAttr} class="thumb-box">
-       ${t.thumb ? `<img src="${escapeHtml(t.thumb)}" alt="Thumbnail">` : `<span class="thumb-placeholder">🎬</span>`}
-     </${thumbTag}>
-     <div class="tutorial-body">
-       <div>
-         <div class="name" style="margin-bottom:6px">${escapeHtml(t.title)}</div>
-         ${t.note ? `<div style="margin-bottom:8px"><span class="tag">${escapeHtml(t.note)}</span></div>` : ''}
-       </div>
-       <div class="meta">
-         <div>${t.link ? `<a href="${escapeHtml(t.link)}" target="_blank" rel="noopener">Watch Video ↗</a>` : ''}</div>
-         <div style="display:flex;gap:6px">
-           <button class="action edit" title="Edit tutorial" onclick="openEditTutorial(${idx})">✎</button>
-           <button class="action delete-btn" title="Delete tutorial" onclick="deleteTutorial(${idx})">🗑</button>
-         </div>
-       </div>
-     </div>
-   </article>`
- }).join("") + `<article class="item add-card" title="Add new tutorial" onclick="openAddTutorial()">+</article>`;
+// Tutorial modal handlers
+let editingTutIndex = null;
+function openTutModal(index = null) {
+  editingTutIndex = index;
+  const modal = document.getElementById("tutModal");
+  if (index !== null) {
+    const t = tutorials[index];
+    document.getElementById("tutModalTitle").textContent = "Edit Tutorial";
+    document.getElementById("tutTitle").value = t.title || "";
+    document.getElementById("tutLink").value = t.link || "";
+    document.getElementById("tutNote").value = t.note || "";
+    document.getElementById("tutImageUrl").value = t.img || "";
+  } else {
+    document.getElementById("tutModalTitle").textContent = "Add Tutorial";
+    document.getElementById("tutTitle").value = "";
+    document.getElementById("tutLink").value = "";
+    document.getElementById("tutNote").value = "";
+    document.getElementById("tutImageUrl").value = "";
+  }
+  document.getElementById("tutImageFile").value = "";
+  modal.classList.add("open");
 }
 
-function renderNotes(){
- const stream = document.getElementById("notesStream");
- if(!notes.length){
-   stream.innerHTML = '<div class="empty">No notes written yet. Use the quick box on the left to jot down thoughts! ✍️</div>';
-   return;
- }
- stream.innerHTML = notes.map((n, idx) => {
-   const cat = n.category || 'technique';
-   return `<article class="notebook-entry cat-${cat}">
-     <div class="entry-header">
-       <div class="entry-title">${escapeHtml(n.title)}</div>
-       <span class="entry-badge">${cat}</span>
-     </div>
-     <div class="entry-body">${escapeHtml(n.content)}</div>
-     <div class="entry-footer">
-       <button class="action edit" onclick="openEditNote(${idx})">✎ Edit</button>
-       <button class="action delete-btn" onclick="deleteNote(${idx})">🗑 Delete</button>
-     </div>
-   </article>`;
- }).join("");
+function closeTutModal() {
+  document.getElementById("tutModal").classList.remove("open");
 }
 
-function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-
-let editingIndex=null;
-function openEdit(i){
- editingIndex=i;
- const x=items[i];
- document.getElementById("modalTitle").textContent="Edit item";
- document.getElementById("editName").value=x.name;
- document.getElementById("editQty").value=x.qty;
- document.getElementById("editPrice").value=x.price;
- document.getElementById("editLink").value=x.link||"";
- document.getElementById("editNote").value=x.note||"";
- document.getElementById("editImgUrl").value=(x.img && !x.img.startsWith("data:")) ? x.img : "";
- document.getElementById("editImgFile").value="";
- document.getElementById("modal").classList.add("open");
- document.getElementById("editName").focus();
-}
-
-function openAdd(){
- editingIndex=null;
- document.getElementById("modalTitle").textContent="Add new item";
- document.getElementById("editName").value="";
- document.getElementById("editQty").value=1;
- document.getElementById("editPrice").value=0;
- document.getElementById("editLink").value="";
- document.getElementById("editNote").value="";
- document.getElementById("editImgUrl").value="";
- document.getElementById("editImgFile").value="";
- document.getElementById("modal").classList.add("open");
- document.getElementById("editName").focus();
-}
-
-function closeModal(){document.getElementById("modal").classList.remove("open")}
-
-function saveItem(){
- const name=document.getElementById("editName").value.trim();
- if(!name){alert("Give the item a name first.");return}
- const qty=Math.max(0,Number(document.getElementById("editQty").value)||0);
- const price=Math.max(0,Number(document.getElementById("editPrice").value)||0);
- const link=document.getElementById("editLink").value.trim();
- const note=document.getElementById("editNote").value.trim();
- const urlImg=document.getElementById("editImgUrl").value.trim();
-
- if(editingIndex===null) {
-   items.push({name,qty,price,link,note,img:urlImg,bought:false});
- } else {
-   const existingImg = items[editingIndex].img;
-   const finalImg = urlImg || existingImg;
-   Object.assign(items[editingIndex],{name,qty,price,link,note,img:finalImg});
- }
- save(); render(); closeModal();
-}
-
-let editingTutIndex=null;
-function openAddTutorial(){
- editingTutIndex=null;
- document.getElementById("tutModalTitle").textContent="Add Tutorial";
- document.getElementById("tutTitle").value="";
- document.getElementById("tutLink").value="";
- document.getElementById("tutNote").value="";
- document.getElementById("tutImageUrl").value="";
- document.getElementById("tutImageFile").value="";
- document.getElementById("tutModal").classList.add("open");
- document.getElementById("tutTitle").focus();
-}
-
-function openEditTutorial(idx){
- editingTutIndex=idx;
- const t=tutorials[idx];
- document.getElementById("tutModalTitle").textContent="Edit Tutorial";
- document.getElementById("tutTitle").value=t.title||"";
- document.getElementById("tutLink").value=t.link||"";
- document.getElementById("tutNote").value=t.note||"";
- document.getElementById("tutImageUrl").value=(t.thumb && !t.thumb.startsWith("data:")) ? t.thumb : "";
- document.getElementById("tutImageFile").value="";
- document.getElementById("tutModal").classList.add("open");
- document.getElementById("tutTitle").focus();
-}
-
-function closeTutModal(){document.getElementById("tutModal").classList.remove("open")}
-
-function saveTutorial(){
- const title=document.getElementById("tutTitle").value.trim();
- if(!title){alert("Please provide a title for the video.");return}
- const link=document.getElementById("tutLink").value.trim();
- const note=document.getElementById("tutNote").value.trim();
- const urlThumb=document.getElementById("tutImageUrl").value.trim();
-
- if(editingTutIndex === null){
-   tutorials.push({title, link, note, thumb: urlThumb});
- } else {
-   const existingThumb = tutorials[editingTutIndex].thumb;
-   const finalThumb = urlThumb || existingThumb;
-   tutorials[editingTutIndex] = {title, link, note, thumb: finalThumb};
- }
- saveTut(); renderTutorials(); closeTutModal();
-}
-
-function deleteTutorial(idx){
- tutorials.splice(idx,1);
- saveTut();renderTutorials();
-}
-
-let editingNoteIdx=null;
-
-function addQuickNote(){
- const title = document.getElementById("quickNoteTitle").value.trim();
- const content = document.getElementById("quickNoteContent").value.trim();
- const category = document.getElementById("quickNoteCategory").value;
-
- if(!title && !content){ alert("Please enter a note header or content."); return; }
-
- notes.unshift({title: title || "Untitled Note", content, category});
- saveNotes();
- renderNotes();
-
- document.getElementById("quickNoteTitle").value = "";
- document.getElementById("quickNoteContent").value = "";
-}
-
-function openEditNote(idx){
- editingNoteIdx = idx;
- const n = notes[idx];
- document.getElementById("editNoteTitle").value = n.title || "";
- document.getElementById("editNoteCategory").value = n.category || "technique";
- document.getElementById("editNoteContent").value = n.content || "";
- document.getElementById("noteModal").classList.add("open");
-}
-
-function closeNoteModal(){ document.getElementById("noteModal").classList.remove("open"); }
-
-function saveEditNote(){
- const title = document.getElementById("editNoteTitle").value.trim();
- const content = document.getElementById("editNoteContent").value.trim();
- const category = document.getElementById("editNoteCategory").value;
-
- if(editingNoteIdx !== null){
-   notes[editingNoteIdx] = {title: title || "Untitled Note", content, category};
-   saveNotes();
-   renderNotes();
- }
- closeNoteModal();
-}
-
-function deleteNote(idx){
- notes.splice(idx, 1);
- saveNotes();
- renderNotes();
-}
-
-document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
-document.getElementById("tutModal").addEventListener("click",e=>{if(e.target.id==="tutModal")closeTutModal()});
-document.getElementById("noteModal").addEventListener("click",e=>{if(e.target.id==="noteModal")closeNoteModal()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeTutModal();closeNoteModal();closeCropper()}});
-
-function toggle(i){items[i].bought=!items[i].bought;save();render()}
-
-document.querySelectorAll("nav button").forEach(btn=>{
- btn.onclick=()=>{
-   document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-   btn.classList.add("active");
-   const tab = btn.dataset.tab;
-   
-   document.getElementById("shoppingView").classList.remove("active");
-   document.getElementById("tutorialsView").classList.remove("active");
-   document.getElementById("notesView").classList.remove("active");
-
-   if(tab === "tutorials") {
-     document.getElementById("tutorialsView").classList.add("active");
-   } else if(tab === "notes") {
-     document.getElementById("notesView").classList.add("active");
-   } else {
-     document.getElementById("shoppingView").classList.add("active");
-     if(tab==="bought") document.getElementById("boughtSection").scrollIntoView({behavior:"smooth",block:"start"});
-     else document.getElementById("needSection").scrollIntoView({behavior:"smooth",block:"start"});
-   }
- }
+document.getElementById("tutImageFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(file) {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      openCropper(evt.target.result, (croppedBase64) => {
+        document.getElementById("tutImageUrl").value = croppedBase64;
+      });
+    };
+    reader.readAsDataURL(file);
+  }
 });
 
-render();
+function saveTutorial() {
+  const title = document.getElementById("tutTitle").value.trim();
+  const link = document.getElementById("tutLink").value.trim();
+  const note = document.getElementById("tutNote").value.trim();
+  const img = document.getElementById("tutImageUrl").value.trim();
+
+  if (!title) { alert("Please enter a title"); return; }
+
+  const tutData = { title, link, note, img };
+  if (editingTutIndex !== null) {
+    tutorials[editingTutIndex] = tutData;
+  } else {
+    tutorials.push(tutData);
+  }
+  saveTut();
+  closeTutModal();
+  render();
+}
+
+function deleteTutorial(index) {
+  if (confirm("Delete this tutorial?")) {
+    tutorials.splice(index, 1);
+    saveTut();
+    render();
+  }
+}
+
+// Notes handlers
+function addQuickNote() {
+  const title = document.getElementById("quickNoteTitle").value.trim();
+  const category = document.getElementById("quickNoteCategory").value;
+  const content = document.getElementById("quickNoteContent").value.trim();
+
+  if (!title || !content) { alert("Please enter both title and content for your note."); return; }
+
+  notes.unshift({ title, category, content });
+  document.getElementById("quickNoteTitle").value = "";
+  document.getElementById("quickNoteContent").value = "";
+  saveNotes();
+  render();
+}
+
+let editingNoteIndex = null;
+function editNote(index) {
+  editingNoteIndex = index;
+  const n = notes[index];
+  document.getElementById("editNoteTitle").value = n.title;
+  document.getElementById("editNoteCategory").value = n.category;
+  document.getElementById("editNoteContent").value = n.content;
+  document.getElementById("noteModal").classList.add("open");
+}
+
+function closeNoteModal() {
+  document.getElementById("noteModal").classList.remove("open");
+}
+
+function saveEditNote() {
+  const title = document.getElementById("editNoteTitle").value.trim();
+  const category = document.getElementById("editNoteCategory").value;
+  const content = document.getElementById("editNoteContent").value.trim();
+
+  if (!title || !content) { alert("Fields cannot be empty"); return; }
+
+  notes[editingNoteIndex] = { title, category, content };
+  saveNotes();
+  closeNoteModal();
+  render();
+}
+
+function deleteNote(index) {
+  if (confirm("Delete this note?")) {
+    notes.splice(index, 1);
+    saveNotes();
+    render();
+  }
+}
+
+// Tabs navigation
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-view").forEach(v => v.classList.remove("active"));
+    btn.classList.add("active");
+    const target = btn.getAttribute("data-tab");
+    if(target === "need") document.getElementById("shoppingView").classList.add("active");
+    if(target === "bought") document.getElementById("shoppingView").classList.add("active");
+    if(target === "tutorials") document.getElementById("tutorialsView").classList.add("active");
+    if(target === "notes") document.getElementById("notesView").classList.add("active");
+  });
+});
+
+function render() {
+  const need = items.filter(x => !x.bought);
+  const bought = items.filter(x => x.bought);
+
+  document.getElementById("count").textContent = items.length;
+  document.getElementById("boughtCount").textContent = bought.length;
+
+  const spent = bought.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
+  const remaining = need.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
+  const grand = spent + remaining;
+
+  document.getElementById("spent").textContent = money(spent);
+  document.getElementById("remaining").textContent = money(remaining);
+  document.getElementById("grand").textContent = money(grand);
+  document.getElementById("progress").textContent = `${Math.round((bought.length / (items.length || 1)) * 100)}% Complete`;
+
+  // Render Need Grid
+  const needGrid = document.getElementById("needGrid");
+  needGrid.innerHTML = "";
+  need.forEach((item) => {
+    const originalIndex = items.indexOf(item);
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
+      <div class="row">
+        <div>
+          <div class="name">${item.name}</div>
+          <div class="qty">Qty: ${item.qty} ${item.source ? `• ${item.source}` : ''}</div>
+          ${item.note ? `<div class="tag" style="margin-top:6px">${item.note}</div>` : ''}
+        </div>
+        <div class="price">${money((item.price || 0) * (item.qty || 1))}</div>
+      </div>
+      <div class="meta">
+        <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
+        <div style="display:flex; gap:6px">
+          <button class="action edit" onclick="openModal(${originalIndex})">✏️</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
+          <button class="action buy" onclick="toggleBuy(${originalIndex})">Mark Bought ✓</button>
+        </div>
+      </div>
+    `;
+    needGrid.appendChild(div);
+  });
+
+  const addCardNeed = document.createElement("div");
+  addCardNeed.className = "add-card";
+  addCardNeed.innerHTML = "+ Add Item";
+  addCardNeed.onclick = () => openModal();
+  needGrid.appendChild(addCardNeed);
+
+  // Render Bought Grid
+  const boughtGrid = document.getElementById("boughtGrid");
+  boughtGrid.innerHTML = "";
+  bought.forEach((item) => {
+    const originalIndex = items.indexOf(item);
+    const div = document.createElement("div");
+    div.className = "item bought";
+    div.innerHTML = `
+      ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
+      <div class="row">
+        <div>
+          <div class="name">${item.name}</div>
+          <div class="qty">Qty: ${item.qty}</div>
+          <div class="tag" style="margin-top:6px; background:rgba(16,185,129,0.15); color:#10b981; border-color:rgba(16,185,129,0.3)">Bought ✓</div>
+        </div>
+        <div class="price">${money((item.price || 0) * (item.qty || 1))}</div>
+      </div>
+      <div class="meta">
+        <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
+        <div style="display:flex; gap:6px">
+          <button class="action edit" onclick="openModal(${originalIndex})">✏️</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
+          <button class="action undo" onclick="toggleBuy(${originalIndex})">Undo</button>
+        </div>
+      </div>
+    `;
+    boughtGrid.appendChild(div);
+  });
+
+  // Render Tutorials Grid
+  const tutGrid = document.getElementById("tutorialsGrid");
+  tutGrid.innerHTML = "";
+  tutorials.forEach((t, index) => {
+    const div = document.createElement("div");
+    div.className = "tutorial-card";
+    div.innerHTML = `
+      ${t.img ? `<a href="${t.link || '#'}" target="_blank" class="thumb-box"><img src="${t.img}"></a>` : `<div class="thumb-box"><div class="thumb-placeholder">🎥</div></div>`}
+      <div class="tutorial-body">
+        <div>
+          <div style="font-weight:700; font-size:16px; margin-bottom:6px">${t.title}</div>
+          ${t.note ? `<div style="font-size:13px; color:var(--text-muted); margin-bottom:10px">${t.note}</div>` : ''}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; pt:10px; border-top:1px solid var(--border-color)">
+          ${t.link ? `<a href="${t.link}" target="_blank">Watch Guide ↗</a>` : '<span></span>'}
+          <div style="display:flex; gap:6px">
+            <button class="action edit" onclick="openTutModal(${index})">✏️</button>
+            <button class="action delete-btn" onclick="deleteTutorial(${index})">🗑️</button>
+          </div>
+        </div>
+      </div>
+    `;
+    tutGrid.appendChild(div);
+  });
+
+  const addCardTut = document.createElement("div");
+  addCardTut.className = "add-card";
+  addCardTut.innerHTML = "+ Add Tutorial";
+  addCardTut.onclick = () => openTutModal();
+  tutGrid.appendChild(addCardTut);
+
+  // Render Notes Stream
+  const notesStream = document.getElementById("notesStream");
+  notesStream.innerHTML = "";
+  notes.forEach((n, index) => {
+    const div = document.createElement("div");
+    div.className = `notebook-entry cat-${n.category}`;
+    div.innerHTML = `
+      <div class="entry-header">
+        <div class="entry-title">${n.title}</div>
+        <div class="entry-badge">${n.category}</div>
+      </div>
+      <div class="entry-body">${n.content}</div>
+      <div class="entry-footer">
+        <button class="action edit" onclick="editNote(${index})">✏️ Edit</button>
+        <button class="action delete-btn" onclick="deleteNote(${index})">🗑️ Delete</button>
+      </div>
+    `;
+    notesStream.appendChild(div);
+  });
+}
+
+// Initial application load on startup
+window.onload = () => {
+  loadFromCloud();
+};
 </script>
 </body>
 </html>
