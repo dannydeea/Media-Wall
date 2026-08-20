@@ -52,6 +52,7 @@ header {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 h1 {
@@ -69,6 +70,12 @@ h1 {
   margin-top: 4px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 #progress {
   background: rgba(129, 140, 248, 0.1);
   border: 1px solid rgba(129, 140, 248, 0.2);
@@ -76,6 +83,23 @@ h1 {
   padding: 6px 14px;
   border-radius: 20px;
   font-weight: 600;
+  font-size: 14px;
+}
+
+.auth-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.auth-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 nav {
@@ -561,15 +585,6 @@ a:hover { text-decoration: underline; }
 
 .crop-controls input[type="range"] { flex: 1; }
 
-.empty {
-  color: var(--text-muted);
-  padding: 32px;
-  background: var(--card-bg);
-  border: 1px dashed var(--border-color);
-  border-radius: 16px;
-  text-align: center;
-}
-
 .tutorial-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -777,6 +792,9 @@ a:hover { text-decoration: underline; }
 .tab-view { display: none; }
 .tab-view.active { display: block; }
 
+/* Control visibility for admin-only elements */
+body.guest .admin-only { display: none !important; }
+
 @media(max-width: 900px) {
   .summary { grid-template-columns: repeat(3, 1fr); }
 }
@@ -788,14 +806,17 @@ a:hover { text-decoration: underline; }
 }
 </style>
 </head>
-<body>
+<body class="guest">
 <header>
   <div class="top">
     <div>
       <h1>Media Wall Planner</h1>
       <div class="sub">Track items, prices, tutorials and notes</div>
     </div>
-    <div id="progress"></div>
+    <div class="header-right">
+      <div id="progress"></div>
+      <button id="authBtn" class="auth-btn" onclick="handleAuthClick()">🔒 Admin Login</button>
+    </div>
   </div>
   <nav>
     <button class="active" data-tab="need">Need to Buy</button>
@@ -804,6 +825,20 @@ a:hover { text-decoration: underline; }
     <button data-tab="notes">Notes</button>
   </nav>
 </header>
+
+<!-- Auth Modal -->
+<div id="authModal" class="modal">
+  <div class="modalbox" style="width: min(380px, 100%);">
+    <h3>Admin Login</h3>
+    <p style="font-size:13px; color:var(--text-muted); margin-top:-10px;">Sign in to unlock editing and sync across devices.</p>
+    <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input id="loginPassword" type="password" placeholder="••••••••"></div>
+    <div class="modalbuttons">
+      <button class="cancel" onclick="document.getElementById('authModal').classList.remove('open')">Cancel</button>
+      <button class="save" onclick="performLogin()">Sign In</button>
+    </div>
+  </div>
+</div>
 
 <!-- Edit Item Modal -->
 <div id="modal" class="modal">
@@ -889,7 +924,7 @@ a:hover { text-decoration: underline; }
 </div>
 
 <main>
-  <div class="backup-toolbar">
+  <div class="backup-toolbar admin-only">
     <button class="action" onclick="exportData()">Export Backup</button>
     <button class="action" onclick="triggerImport()">Import Backup</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
@@ -900,7 +935,7 @@ a:hover { text-decoration: underline; }
     <div class="reference-card">
       <div class="reference-header">
         <h3>Project Reference Goal</h3>
-        <button class="action edit" onclick="triggerRefUpload()">Change Photo</button>
+        <button class="action edit admin-only" onclick="triggerRefUpload()">Change Photo</button>
         <input type="file" id="refImageInput" accept="image/*" style="display:none" onchange="uploadRefImage(event)">
       </div>
       <div class="reference-content">
@@ -945,7 +980,7 @@ a:hover { text-decoration: underline; }
       <h2>Project Notebook & Research</h2>
       <div class="notebook-container">
         
-        <div class="quick-note-box">
+        <div class="quick-note-box admin-only">
           <h3>Quick Add Note</h3>
           <div class="note-input-group">
             <input id="quickNoteTitle" placeholder="Topic or Header...">
@@ -974,6 +1009,55 @@ const SUPABASE_URL = 'https://hqkbzdabspiajjhheupg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Bxqbz0rbb3EIXUv1iuFryw_hbU-I7F7';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const ROW_ID = 1;
+
+let currentUser = null;
+
+async function checkAuthStatus() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  setAuthUser(session ? session.user : null);
+  
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    setAuthUser(session ? session.user : null);
+  });
+}
+
+function setAuthUser(user) {
+  currentUser = user;
+  const btn = document.getElementById("authBtn");
+  if (user) {
+    document.body.classList.remove("guest");
+    btn.textContent = "🔓 Logout (" + user.email.split('@')[0] + ")";
+  } else {
+    document.body.classList.add("guest");
+    btn.textContent = "🔒 Admin Login";
+  }
+  render();
+}
+
+function handleAuthClick() {
+  if (currentUser) {
+    if (confirm("Log out of admin session?")) {
+      supabaseClient.auth.signOut();
+    }
+  } else {
+    document.getElementById("authModal").classList.add("open");
+  }
+}
+
+async function performLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  if (!email || !password) { alert("Please enter email and password"); return; }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) {
+    alert("Login failed: " + error.message);
+  } else {
+    document.getElementById("authModal").classList.remove("open");
+    document.getElementById("loginPassword").value = "";
+    alert("Logged in successfully!");
+  }
+}
 
 const initialItems = [
 {name:"Mitre Saw",qty:1,price:134,link:"https://amzn.eu/d/047xyF6c"},
@@ -1010,6 +1094,7 @@ let notes = [
 const refKey="mediaWallRefImage_v1";
 
 async function save() {
+  if (!currentUser) return; // Block guests from syncing writes
   try {
     const backup = {
       items: items,
@@ -1050,6 +1135,7 @@ async function loadFromCloud() {
 function money(n){return "£"+n.toFixed(2).replace(".00","")}
 
 function exportData() {
+  if (!currentUser) return;
   const backup = {
     items: items,
     tutorials: tutorials,
@@ -1066,10 +1152,12 @@ function exportData() {
 }
 
 function triggerImport() {
+  if (!currentUser) return;
   document.getElementById("importFile").click();
 }
 
 function importData(e) {
+  if (!currentUser) return;
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -1252,10 +1340,12 @@ function initRefImage(){
 }
 
 function triggerRefUpload(){
+  if (!currentUser) return;
   document.getElementById("refImageInput").click();
 }
 
 function uploadRefImage(e){
+  if (!currentUser) return;
   const file = e.target.files[0];
   if(file){
     const reader = new FileReader();
@@ -1273,6 +1363,7 @@ function uploadRefImage(e){
 let editingIndex = null;
 
 function openModal(index = null) {
+  if (!currentUser) return;
   editingIndex = index;
   const modal = document.getElementById("modal");
   if (index !== null) {
@@ -1302,6 +1393,7 @@ function closeModal() {
 }
 
 function saveItem() {
+  if (!currentUser) return;
   const name = document.getElementById("editName").value.trim();
   const qty = parseInt(document.getElementById("editQty").value) || 1;
   const price = parseFloat(document.getElementById("editPrice").value) || 0;
@@ -1325,12 +1417,14 @@ function saveItem() {
 }
 
 function toggleBuy(index) {
+  if (!currentUser) return;
   items[index].bought = !items[index].bought;
   save();
   render();
 }
 
 function deleteItem(index) {
+  if (!currentUser) return;
   if (confirm("Delete this item?")) {
     items.splice(index, 1);
     save();
@@ -1340,6 +1434,7 @@ function deleteItem(index) {
 
 let editingTutIndex = null;
 function openTutModal(index = null) {
+  if (!currentUser) return;
   editingTutIndex = index;
   const modal = document.getElementById("tutModal");
   if (index !== null) {
@@ -1365,6 +1460,7 @@ function closeTutModal() {
 }
 
 function saveTutorial() {
+  if (!currentUser) return;
   const title = document.getElementById("tutTitle").value.trim();
   const link = document.getElementById("tutLink").value.trim();
   const note = document.getElementById("tutNote").value.trim();
@@ -1384,6 +1480,7 @@ function saveTutorial() {
 }
 
 function deleteTutorial(index) {
+  if (!currentUser) return;
   if (confirm("Delete this tutorial?")) {
     tutorials.splice(index, 1);
     saveTut();
@@ -1392,6 +1489,7 @@ function deleteTutorial(index) {
 }
 
 function addQuickNote() {
+  if (!currentUser) return;
   const title = document.getElementById("quickNoteTitle").value.trim();
   const category = document.getElementById("quickNoteCategory").value;
   const content = document.getElementById("quickNoteContent").value.trim();
@@ -1407,6 +1505,7 @@ function addQuickNote() {
 
 let editingNoteIndex = null;
 function editNote(index) {
+  if (!currentUser) return;
   editingNoteIndex = index;
   const n = notes[index];
   document.getElementById("editNoteTitle").value = n.title;
@@ -1420,6 +1519,7 @@ function closeNoteModal() {
 }
 
 function saveEditNote() {
+  if (!currentUser) return;
   const title = document.getElementById("editNoteTitle").value.trim();
   const category = document.getElementById("editNoteCategory").value;
   const content = document.getElementById("editNoteContent").value.trim();
@@ -1433,6 +1533,7 @@ function saveEditNote() {
 }
 
 function deleteNote(index) {
+  if (!currentUser) return;
   if (confirm("Delete this note?")) {
     notes.splice(index, 1);
     saveNotes();
@@ -1478,41 +1579,43 @@ function render() {
     const originalIndex = items.indexOf(item);
     const div = document.createElement("div");
     div.className = "item";
-    div.draggable = true;
+    div.draggable = currentUser !== null;
 
-    div.addEventListener("dragstart", (e) => {
-      draggedIndex = originalIndex;
-      div.classList.add("dragging");
-    });
+    if (currentUser) {
+      div.addEventListener("dragstart", (e) => {
+        draggedIndex = originalIndex;
+        div.classList.add("dragging");
+      });
 
-    div.addEventListener("dragend", () => {
-      draggedIndex = null;
-      div.classList.remove("dragging");
-      document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over"));
-    });
+      div.addEventListener("dragend", () => {
+        draggedIndex = null;
+        div.classList.remove("dragging");
+        document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over"));
+      });
 
-    div.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      div.classList.add("drag-over");
-    });
+      div.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        div.classList.add("drag-over");
+      });
 
-    div.addEventListener("dragleave", () => {
-      div.classList.remove("drag-over");
-    });
+      div.addEventListener("dragleave", () => {
+        div.classList.remove("drag-over");
+      });
 
-    div.addEventListener("drop", (e) => {
-      e.preventDefault();
-      div.classList.remove("drag-over");
-      if (draggedIndex !== null && draggedIndex !== originalIndex) {
-        const movedItem = items.splice(draggedIndex, 1)[0];
-        items.splice(originalIndex, 0, movedItem);
-        save();
-        render();
-      }
-    });
+      div.addEventListener("drop", (e) => {
+        e.preventDefault();
+        div.classList.remove("drag-over");
+        if (draggedIndex !== null && draggedIndex !== originalIndex) {
+          const movedItem = items.splice(draggedIndex, 1)[0];
+          items.splice(originalIndex, 0, movedItem);
+          save();
+          render();
+        }
+      });
+    }
 
     div.innerHTML = `
-      <div class="drag-handle" title="Drag to reorder">::</div>
+      ${currentUser ? `<div class="drag-handle" title="Drag to reorder">::</div>` : ''}
       ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
       <div class="row">
         <div>
@@ -1524,7 +1627,7 @@ function render() {
       </div>
       <div class="meta">
         <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
-        <div style="display:flex; gap:6px">
+        <div class="admin-only" style="display:flex; gap:6px">
           <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
           <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
           <button class="action buy" onclick="toggleBuy(${originalIndex})">Mark Bought ✓</button>
@@ -1534,11 +1637,13 @@ function render() {
     needGrid.appendChild(div);
   });
 
-  const addCardNeed = document.createElement("div");
-  addCardNeed.className = "add-card";
-  addCardNeed.innerHTML = "+ Add Item";
-  addCardNeed.onclick = () => openModal();
-  needGrid.appendChild(addCardNeed);
+  if (currentUser) {
+    const addCardNeed = document.createElement("div");
+    addCardNeed.className = "add-card";
+    addCardNeed.innerHTML = "+ Add Item";
+    addCardNeed.onclick = () => openModal();
+    needGrid.appendChild(addCardNeed);
+  }
 
   // Render Bought Grid
   const boughtGrid = document.getElementById("boughtGrid");
@@ -1547,41 +1652,43 @@ function render() {
     const originalIndex = items.indexOf(item);
     const div = document.createElement("div");
     div.className = "item bought";
-    div.draggable = true;
+    div.draggable = currentUser !== null;
 
-    div.addEventListener("dragstart", (e) => {
-      draggedIndex = originalIndex;
-      div.classList.add("dragging");
-    });
+    if (currentUser) {
+      div.addEventListener("dragstart", (e) => {
+        draggedIndex = originalIndex;
+        div.classList.add("dragging");
+      });
 
-    div.addEventListener("dragend", () => {
-      draggedIndex = null;
-      div.classList.remove("dragging");
-      document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over"));
-    });
+      div.addEventListener("dragend", () => {
+        draggedIndex = null;
+        div.classList.remove("dragging");
+        document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over"));
+      });
 
-    div.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      div.classList.add("drag-over");
-    });
+      div.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        div.classList.add("drag-over");
+      });
 
-    div.addEventListener("dragleave", () => {
-      div.classList.remove("drag-over");
-    });
+      div.addEventListener("dragleave", () => {
+        div.classList.remove("drag-over");
+      });
 
-    div.addEventListener("drop", (e) => {
-      e.preventDefault();
-      div.classList.remove("drag-over");
-      if (draggedIndex !== null && draggedIndex !== originalIndex) {
-        const movedItem = items.splice(draggedIndex, 1)[0];
-        items.splice(originalIndex, 0, movedItem);
-        save();
-        render();
-      }
-    });
+      div.addEventListener("drop", (e) => {
+        e.preventDefault();
+        div.classList.remove("drag-over");
+        if (draggedIndex !== null && draggedIndex !== originalIndex) {
+          const movedItem = items.splice(draggedIndex, 1)[0];
+          items.splice(originalIndex, 0, movedItem);
+          save();
+          render();
+        }
+      });
+    }
 
     div.innerHTML = `
-      <div class="drag-handle" title="Drag to reorder">::</div>
+      ${currentUser ? `<div class="drag-handle" title="Drag to reorder">::</div>` : ''}
       ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
       <div class="row">
         <div>
@@ -1593,7 +1700,7 @@ function render() {
       </div>
       <div class="meta">
         <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
-        <div style="display:flex; gap:6px">
+        <div class="admin-only" style="display:flex; gap:6px">
           <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
           <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
           <button class="action undo" onclick="toggleBuy(${originalIndex})">Undo</button>
@@ -1618,7 +1725,7 @@ function render() {
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; pt:10px; border-top:1px solid var(--border-color)">
           ${t.link ? `<a href="${t.link}" target="_blank">Watch Guide ↗</a>` : '<span></span>'}
-          <div style="display:flex; gap:6px">
+          <div class="admin-only" style="display:flex; gap:6px">
             <button class="action edit" onclick="openTutModal(${index})">✎</button>
             <button class="action delete-btn" onclick="deleteTutorial(${index})">🗑</button>
           </div>
@@ -1628,11 +1735,13 @@ function render() {
     tutGrid.appendChild(div);
   });
 
-  const addCardTut = document.createElement("div");
-  addCardTut.className = "add-card";
-  addCardTut.innerHTML = "+ Add Tutorial";
-  addCardTut.onclick = () => openTutModal();
-  tutGrid.appendChild(addCardTut);
+  if (currentUser) {
+    const addCardTut = document.createElement("div");
+    addCardTut.className = "add-card";
+    addCardTut.innerHTML = "+ Add Tutorial";
+    addCardTut.onclick = () => openTutModal();
+    tutGrid.appendChild(addCardTut);
+  }
 
   // Render Notes Stream
   const notesStream = document.getElementById("notesStream");
@@ -1646,7 +1755,7 @@ function render() {
         <div class="entry-badge">${n.category}</div>
       </div>
       <div class="entry-body">${n.content}</div>
-      <div class="entry-footer">
+      <div class="entry-footer admin-only">
         <button class="action edit" onclick="editNote(${index})">✎ Edit</button>
         <button class="action delete-btn" onclick="deleteNote(${index})">🗑 Delete</button>
       </div>
@@ -1656,6 +1765,7 @@ function render() {
 }
 
 window.onload = () => {
+  checkAuthStatus();
   loadFromCloud();
 };
 </script>
