@@ -19,7 +19,6 @@
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border-color: rgba(255, 255, 255, 0.08);
-  --fire-glow: transparent;
 }
 
 * { box-sizing: border-box; }
@@ -32,42 +31,32 @@ body {
   color: var(--text-main);
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
-  transition: box-shadow 0.5s ease;
-  box-shadow: inset 0 0 100px var(--fire-glow);
 }
 
 header {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 20;
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease-in-out;
-}
-
-header.header-hidden {
-  transform: translateY(-100%);
 }
 
 .top {
   max-width: 1200px;
   margin: auto;
-  padding: 16px 20px 10px;
+  padding: 20px 20px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  flex-wrap: wrap;
 }
 
 h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
   -webkit-background-clip: text;
@@ -76,44 +65,23 @@ h1 {
 
 .sub {
   color: var(--text-muted);
-  font-size: 12px;
-  margin-top: 2px;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  font-size: 13px;
+  margin-top: 4px;
 }
 
 #progress {
   background: rgba(129, 140, 248, 0.1);
   border: 1px solid rgba(129, 140, 248, 0.2);
   color: var(--accent);
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-weight: 600;
-  font-size: 13px;
 }
-
-.auth-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  padding: 5px 10px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 12px;
-  transition: all 0.2s;
-}
-
-.auth-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
 nav {
   max-width: 1200px;
   margin: auto;
-  padding: 0 20px 12px;
+  padding: 0 20px 16px;
   display: flex;
   gap: 10px;
   overflow: auto;
@@ -123,11 +91,11 @@ nav button {
   border: 1px solid var(--border-color);
   background: rgba(30, 41, 59, 0.5);
   color: var(--text-muted);
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: 12px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   white-space: nowrap;
   transition: all 0.2s ease;
 }
@@ -148,109 +116,8 @@ nav button.active {
 main {
   max-width: 1200px;
   margin: auto;
-  padding: 140px 20px 80px;
+  padding: 24px 20px 80px;
 }
-
-.chaos-panel {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-@media(min-width: 768px) {
-  .chaos-panel { grid-template-columns: repeat(2, 1fr); }
-}
-
-.chaos-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 18px;
-  backdrop-filter: blur(12px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.chaos-card h3 {
-  margin: 0 0 8px;
-  font-size: 15px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.chaos-card p {
-  color: var(--text-muted);
-  font-size: 13px;
-  margin: 0 0 12px;
-  line-height: 1.4;
-}
-
-.chaos-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  padding: 8px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 13px;
-  transition: all 0.2s;
-  align-self: flex-start;
-}
-
-.chaos-btn:hover { background: var(--accent); color: #0f172a; border-color: var(--accent); }
-
-.fire-btn {
-  background: rgba(249, 115, 22, 0.15);
-  color: #fb923c;
-  border-color: rgba(249, 115, 22, 0.3);
-}
-
-.fire-btn.active {
-  background: #f97316;
-  color: #fff;
-  box-shadow: 0 0 20px rgba(249, 115, 22, 0.6);
-  animation: pulseFire 2s infinite alternate;
-}
-
-@keyframes pulseFire {
-  0% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
-  100% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.8); }
-}
-
-.achievements-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
-  margin-top: 24px;
-}
-
-.achievement-badge {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-  opacity: 0.4;
-  filter: grayscale(1);
-  transition: all 0.3s ease;
-}
-
-.achievement-badge.unlocked {
-  opacity: 1;
-  filter: grayscale(0);
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15) 0%, rgba(30, 41, 59, 0.8) 100%);
-  border-color: rgba(129, 140, 248, 0.4);
-  box-shadow: 0 4px 15px rgba(129, 140, 248, 0.15);
-}
-
-.achievement-icon { font-size: 24px; margin-bottom: 6px; }
-.achievement-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 2px; }
-.achievement-desc { font-size: 10px; color: var(--text-muted); }
 
 .backup-toolbar {
   display: flex;
@@ -337,7 +204,7 @@ main {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .stat {
@@ -366,20 +233,6 @@ main {
   font-weight: 800;
   color: var(--text-main);
 }
-
-.budget-status-box {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 16px 20px;
-  margin-bottom: 28px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  backdrop-filter: blur(8px);
-}
-
-.budget-status-box b { font-size: 16px; }
 
 .section { margin-top: 32px; }
 
@@ -436,7 +289,9 @@ main {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-.drag-handle:active { cursor: grabbing; }
+.drag-handle:active {
+  cursor: grabbing;
+}
 
 .item.dragging {
   opacity: 0.35;
@@ -650,7 +505,9 @@ a:hover { text-decoration: underline; }
   font-family: inherit;
 }
 
-.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: var(--accent);
+}
 
 .modalbuttons {
   display: flex;
@@ -667,8 +524,15 @@ a:hover { text-decoration: underline; }
   cursor: pointer;
 }
 
-.cancel { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
-.save { background: var(--green); color: #042f1a; }
+.cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+
+.save {
+  background: var(--green);
+  color: #042f1a;
+}
 
 .crop-container {
   width: 100%;
@@ -684,9 +548,27 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--border-color);
 }
 
-.crop-canvas { width: 100%; height: 100%; }
-.crop-controls { display: flex; align-items: center; gap: 10px; }
+.crop-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.crop-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .crop-controls input[type="range"] { flex: 1; }
+
+.empty {
+  color: var(--text-muted);
+  padding: 32px;
+  background: var(--card-bg);
+  border: 1px dashed var(--border-color);
+  border-radius: 16px;
+  text-align: center;
+}
 
 .tutorial-card {
   background: var(--card-bg);
@@ -714,10 +596,27 @@ a:hover { text-decoration: underline; }
 }
 
 .thumb-box:hover img { transform: scale(1.03); }
-.thumb-box img { width: 100%; height: 100%; object-fit: cover; padding: 0; transition: transform 0.3s ease; }
-.thumb-placeholder { color: var(--text-muted); font-size: 36px; }
 
-.tutorial-body { padding: 18px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+.thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  padding: 0;
+  transition: transform 0.3s ease;
+}
+
+.thumb-placeholder {
+  color: var(--text-muted);
+  font-size: 36px;
+}
+
+.tutorial-body {
+  padding: 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
 .delete-btn {
   background: rgba(239, 68, 68, 0.2) !important;
@@ -736,7 +635,10 @@ a:hover { text-decoration: underline; }
 }
 
 @media(min-width: 900px) {
-  .notebook-container { grid-template-columns: 340px 1fr; align-items: start; }
+  .notebook-container {
+    grid-template-columns: 340px 1fr;
+    align-items: start;
+  }
 }
 
 .quick-note-box {
@@ -749,9 +651,20 @@ a:hover { text-decoration: underline; }
   top: 90px;
 }
 
-.quick-note-box h3 { margin: 0 0 16px; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.quick-note-box h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-.note-input-group { display: flex; flex-direction: column; gap: 12px; }
+.note-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
 .note-input-group input, .note-input-group textarea, .note-input-group select {
   width: 100%;
@@ -765,13 +678,33 @@ a:hover { text-decoration: underline; }
   font-family: inherit;
 }
 
-.note-input-group textarea { min-height: 100px; resize: vertical; }
-.note-input-group input:focus, .note-input-group textarea:focus, .note-input-group select:focus { border-color: var(--accent); }
+.note-input-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
 
-.add-note-btn { background: var(--accent); color: #0f172a; border: 0; border-radius: 10px; padding: 12px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
+.note-input-group input:focus, .note-input-group textarea:focus, .note-input-group select:focus {
+  border-color: var(--accent);
+}
+
+.add-note-btn {
+  background: var(--accent);
+  color: #0f172a;
+  border: 0;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
 .add-note-btn:hover { opacity: 0.9; }
 
-.notes-stream { display: flex; flex-direction: column; gap: 16px; }
+.notes-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 .notebook-entry {
   background: rgba(15, 23, 42, 0.6);
@@ -784,7 +717,11 @@ a:hover { text-decoration: underline; }
   position: relative;
 }
 
-.notebook-entry:hover { background: rgba(30, 41, 59, 0.7); border-color: rgba(255, 255, 255, 0.15); transform: translateX(2px); }
+.notebook-entry:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateX(2px);
+}
 
 .notebook-entry.cat-technique { border-left-color: #818cf8; }
 .notebook-entry.cat-dimensions { border-left-color: #38bdf8; }
@@ -792,9 +729,28 @@ a:hover { text-decoration: underline; }
 .notebook-entry.cat-electrical { border-left-color: #fbbf24; }
 .notebook-entry.cat-reminder { border-left-color: #f43f5e; }
 
-.entry-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-.entry-title { font-size: 17px; font-weight: 700; color: #fff; }
-.entry-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+.entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.entry-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.entry-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 .cat-technique .entry-badge { background: rgba(129, 140, 248, 0.15); color: #818cf8; }
 .cat-dimensions .entry-badge { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
@@ -802,51 +758,52 @@ a:hover { text-decoration: underline; }
 .cat-electrical .entry-badge { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
 .cat-reminder .entry-badge { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
 
-.entry-body { font-size: 14px; line-height: 1.7; color: #cbd5e1; white-space: pre-wrap; }
-.entry-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255, 255, 255, 0.08); }
+.entry-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #cbd5e1;
+  white-space: pre-wrap;
+}
+
+.entry-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
 
 .tab-view { display: none; }
 .tab-view.active { display: block; }
-body.guest .admin-only { display: none !important; }
 
-@media(max-width: 900px) { .summary { grid-template-columns: repeat(3, 1fr); } }
-@media(max-width: 600px) { .summary { grid-template-columns: repeat(2, 1fr); } .top { align-items: flex-start; } .price { font-size: 16px; } }
+@media(max-width: 900px) {
+  .summary { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media(max-width: 600px) {
+  .summary { grid-template-columns: repeat(2, 1fr); }
+  .top { align-items: flex-start; }
+  .price { font-size: 16px; }
+}
 </style>
 </head>
-<body class="guest">
-<header id="mainHeader">
+<body>
+<header>
   <div class="top">
     <div>
-      <h1>Media Wall Planner</h1>
-      <div class="sub">Track items, prices, tutorials and notes</div>
+      <h1>✨ Media Wall Tracker</h1>
+      <div class="sub">Tools, materials, notes & design reference (Cloud Synced)</div>
     </div>
-    <div class="header-right">
-      <div id="progress"></div>
-      <button id="authBtn" class="auth-btn" onclick="handleAuthClick()">🔒 Admin Login</button>
-    </div>
+    <div id="progress"></div>
   </div>
   <nav>
     <button class="active" data-tab="need">Need to Buy</button>
-    <button data-tab="bought">Bought</button>
-    <button data-tab="tutorials">Tutorials</button>
-    <button data-tab="notes">Notes</button>
-    <button data-tab="chaos">🔥 Chaos Hub</button>
+    <button data-tab="bought">Bought ✓</button>
+    <button data-tab="tutorials">Tutorials 🎥</button>
+    <button data-tab="notes">Notes 📝</button>
   </nav>
 </header>
-
-<!-- Auth Modal -->
-<div id="authModal" class="modal">
-  <div class="modalbox" style="width: min(380px, 100%);">
-    <h3>Admin Login</h3>
-    <p style="font-size:13px; color:var(--text-muted); margin-top:-10px;">Sign in to unlock editing and sync across devices.</p>
-    <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="you@example.com"></div>
-    <div class="field"><label>Password</label><input id="loginPassword" type="password" placeholder="••••••••"></div>
-    <div class="modalbuttons">
-      <button class="cancel" onclick="document.getElementById('authModal').classList.remove('open')">Cancel</button>
-      <button class="save" onclick="performLogin()">Sign In</button>
-    </div>
-  </div>
-</div>
 
 <!-- Edit Item Modal -->
 <div id="modal" class="modal">
@@ -861,7 +818,7 @@ body.guest .admin-only { display: none !important; }
       <label>Item Thumbnail (File PNG/JPG or URL)</label>
       <input id="editImgFile" type="file" accept="image/*" style="margin-bottom:8px">
       <input id="editImgUrl" placeholder="Or paste image URL directly">
-      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForItem()">Crop / Zoom Image</button>
+      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForItem()">✂️ Crop / Zoom Image</button>
     </div>
     <div class="modalbuttons">
       <button class="cancel" onclick="closeModal()">Cancel</button>
@@ -873,8 +830,8 @@ body.guest .admin-only { display: none !important; }
 <!-- Interactive Crop Modal -->
 <div id="cropperModal" class="modal" style="z-index: 50;">
   <div class="modalbox" style="width: min(500px, 100%);">
-    <h3>Crop & Zoom Image</h3>
-    <p style="font-size: 12px; color: var(--text-muted); margin-top:-10px;">Drag image freely and zoom down to 0.1x.</p>
+    <h3>✂️ Crop & Zoom Image</h3>
+    <p style="font-size: 12px; color: var(--text-muted); margin-top:-10px;">Drag image freely and zoom down to 0.1x. What you framed inside this box is exactly what displays on your card.</p>
     <div class="crop-container" id="cropBox">
       <canvas id="cropCanvas" class="crop-canvas"></canvas>
     </div>
@@ -895,12 +852,11 @@ body.guest .admin-only { display: none !important; }
     <h3 id="tutModalTitle">Add Tutorial</h3>
     <div class="field"><label>Video Title</label><input id="tutTitle" placeholder="e.g. How to build stud frame"></div>
     <div class="field"><label>Video Link</label><input id="tutLink" placeholder="https://youtube.com/watch?v=..."></div>
-    <div class="field"><label>Note (optional)</label><input id="tutNote" placeholder="e.g. Check timestamp 3:45"></div>
+    <div class="field"><label>Note (optional)</label><input id="tutNote" placeholder="e.g. Check timestamp 3:45 for TV mount height"></div>
     <div class="field">
       <label>Thumbnail (Image File or Image URL)</label>
       <input id="tutImageFile" type="file" accept="image/*" style="margin-bottom:8px">
       <input id="tutImageUrl" placeholder="Or paste image URL directly">
-      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForTut()">Crop / Zoom Thumbnail</button>
     </div>
     <div class="modalbuttons">
       <button class="cancel" onclick="closeTutModal()">Cancel</button>
@@ -932,9 +888,9 @@ body.guest .admin-only { display: none !important; }
 </div>
 
 <main>
-  <div class="backup-toolbar admin-only">
-    <button class="action" onclick="exportData()">Export Backup</button>
-    <button class="action" onclick="triggerImport()">Import Backup</button>
+  <div class="backup-toolbar">
+    <button class="action" onclick="exportData()">💾 Export Backup</button>
+    <button class="action" onclick="triggerImport()">📂 Import Backup</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
   </div>
 
@@ -942,8 +898,8 @@ body.guest .admin-only { display: none !important; }
     
     <div class="reference-card">
       <div class="reference-header">
-        <h3>Project Reference Goal</h3>
-        <button class="action edit admin-only" onclick="triggerRefUpload()">Change Photo</button>
+        <h3>🖼️ Project Reference Goal</h3>
+        <button class="action edit" onclick="triggerRefUpload()">Change Photo 📷</button>
         <input type="file" id="refImageInput" accept="image/*" style="display:none" onchange="uploadRefImage(event)">
       </div>
       <div class="reference-content">
@@ -965,38 +921,31 @@ body.guest .admin-only { display: none !important; }
       <div class="stat"><span>Grand Total</span><b id="grand">£0</b></div>
     </div>
 
-    <div class="budget-status-box">
-      <div>
-        <span style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Budget Panic Level</span>
-        <div id=" budgetPanicText" style="font-size:15px; font-weight:800; margin-top:2px;">🟢 We're chilling</div>
-      </div>
-      <button class="chaos-btn fire-btn" id="fireToggleBtn" onclick="toggleFireplaceMode()">🔥 Fireplace: OFF</button>
-    </div>
-
     <section id="needSection" class="section">
-      <h2>Need to Buy</h2>
+      <h2>🛒 Need to Buy</h2>
       <div id="needGrid" class="grid"></div>
     </section>
 
     <section id="boughtSection" class="section">
-      <h2>Bought</h2>
+      <h2>✅ Bought</h2>
       <div id="boughtGrid" class="grid"></div>
     </section>
   </div>
 
   <div id="tutorialsView" class="tab-view">
     <section class="section">
-      <h2>Video Guides & Inspiration</h2>
+      <h2>🎥 Video Guides & Inspiration</h2>
       <div id="tutorialsGrid" class="grid"></div>
     </section>
   </div>
 
   <div id="notesView" class="tab-view">
     <section class="section">
-      <h2>Project Notebook & Research</h2>
+      <h2>📝 Project Notebook & Research</h2>
       <div class="notebook-container">
-        <div class="quick-note-box admin-only">
-          <h3>Quick Add Note</h3>
+        
+        <div class="quick-note-box">
+          <h3>✍️ Quick Add Note</h3>
           <div class="note-input-group">
             <input id="quickNoteTitle" placeholder="Topic or Header...">
             <select id="quickNoteCategory">
@@ -1010,58 +959,9 @@ body.guest .admin-only { display: none !important; }
             <button class="add-note-btn" onclick="addQuickNote()">+ Save to Notebook</button>
           </div>
         </div>
+
         <div id="notesStream" class="notes-stream"></div>
-      </div>
-    </section>
-  </div>
 
-  <!-- Chaos Hub Tab -->
-  <div id="chaosView" class="tab-view">
-    <section class="section">
-      <h2>🔥 The Chaos & Oracle Hub</h2>
-      <div class="chaos-panel">
-        
-        <div class="chaos-card">
-          <h3>🎲 What Should I Buy Next?</h3>
-          <p id="nextBuyRecommendation">Click the button below to randomly pick your next punishment.</p>
-          <button class="chaos-btn" onclick="pickRandomNextBuy()">Pick Random Item</button>
-        </div>
-
-        <div class="chaos-card">
-          <h3>🔮 Consult The Media Wall Oracle</h3>
-          <p id="oracleText">“You will measure twice. Probably.”</p>
-          <button class="chaos-btn" onclick="consultOracle()">Ask The Oracle</button>
-        </div>
-
-      </div>
-
-      <h3 style="margin-top:32px; font-size:18px; font-weight:800;">🏆 Project Achievements</h3>
-      <div class="achievements-grid" id="achievementsGrid">
-        <div class="achievement-badge" id="ach-first">
-          <div class="achievement-icon">🏆</div>
-          <div class="achievement-title">First Purchase</div>
-          <div class="achievement-desc">Bought 1 item</div>
-        </div>
-        <div class="achievement-badge" id="ach-500">
-          <div class="achievement-icon">💸</div>
-          <div class="achievement-title">£500 Deep</div>
-          <div class="achievement-desc">Spent over £500</div>
-        </div>
-        <div class="achievement-badge" id="ach-1000">
-          <div class="achievement-icon">💀</div>
-          <div class="achievement-title">£1,000 Club</div>
-          <div class="achievement-desc">Spent over £1,000</div>
-        </div>
-        <div class="achievement-badge" id="ach-fire">
-          <div class="achievement-icon">🔥</div>
-          <div class="achievement-title">Fire!</div>
-          <div class="achievement-desc">Fireplace bought</div>
-        </div>
-        <div class="achievement-badge" id="ach-unicorn">
-          <div class="achievement-icon">🦄</div>
-          <div class="achievement-title">Unicorn Master</div>
-          <div class="achievement-desc">100% completed</div>
-        </div>
       </div>
     </section>
   </div>
@@ -1072,50 +972,6 @@ const SUPABASE_URL = 'https://hqkbzdabspiajjhheupg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Bxqbz0rbb3EIXUv1iuFryw_hbU-I7F7';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const ROW_ID = 1;
-
-let currentUser = null;
-
-async function checkAuthStatus() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  setAuthUser(session ? session.user : null);
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    setAuthUser(session ? session.user : null);
-  });
-}
-
-function setAuthUser(user) {
-  currentUser = user;
-  const btn = document.getElementById("authBtn");
-  if (user) {
-    document.body.classList.remove("guest");
-    btn.textContent = "🔓 Logout (" + user.email.split('@')[0] + ")";
-  } else {
-    document.body.classList.add("guest");
-    btn.textContent = "🔒 Admin Login";
-  }
-  render();
-}
-
-function handleAuthClick() {
-  if (currentUser) {
-    if (confirm("Log out of admin session?")) { supabaseClient.auth.signOut(); }
-  } else {
-    document.getElementById("authModal").classList.add("open");
-  }
-}
-
-async function performLogin() {
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
-  if (!email || !password) { alert("Please enter email and password"); return; }
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) { alert("Login failed: " + error.message); }
-  else {
-    document.getElementById("authModal").classList.remove("open");
-    document.getElementById("loginPassword").value = "";
-    alert("Logged in successfully!");
-  }
-}
 
 const initialItems = [
 {name:"Mitre Saw",qty:1,price:134,link:"https://amzn.eu/d/047xyF6c"},
@@ -1152,7 +1008,6 @@ let notes = [
 const refKey="mediaWallRefImage_v1";
 
 async function save() {
-  if (!currentUser) return;
   try {
     const backup = {
       items: items,
@@ -1161,7 +1016,9 @@ async function save() {
       referenceImage: localStorage.getItem(refKey) || ""
     };
     await supabaseClient.from('app_data').upsert({ id: ROW_ID, payload: backup });
-  } catch(e) { console.error("Cloud save error:", e); }
+  } catch(e) {
+    console.error("Cloud save error:", e);
+  }
 }
 
 function saveTut() { save(); }
@@ -1181,7 +1038,9 @@ async function loadFromCloud() {
       if (data.payload.notes) notes = data.payload.notes;
       if (data.payload.referenceImage) localStorage.setItem(refKey, data.payload.referenceImage);
     }
-  } catch(e) { console.error("Cloud load error:", e); }
+  } catch(e) {
+    console.error("Cloud load error:", e);
+  }
   render();
   initRefImage();
 }
@@ -1189,8 +1048,12 @@ async function loadFromCloud() {
 function money(n){return "£"+n.toFixed(2).replace(".00","")}
 
 function exportData() {
-  if (!currentUser) return;
-  const backup = { items: items, tutorials: tutorials, notes: notes, referenceImage: localStorage.getItem(refKey) || "" };
+  const backup = {
+    items: items,
+    tutorials: tutorials,
+    notes: notes,
+    referenceImage: localStorage.getItem(refKey) || ""
+  };
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
@@ -1201,12 +1064,10 @@ function exportData() {
 }
 
 function triggerImport() {
-  if (!currentUser) return;
   document.getElementById("importFile").click();
 }
 
 function importData(e) {
-  if (!currentUser) return;
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -1217,92 +1078,76 @@ function importData(e) {
       if (backup.tutorials) tutorials = backup.tutorials;
       if (backup.notes) notes = backup.notes;
       if (backup.referenceImage) localStorage.setItem(refKey, backup.referenceImage);
-      save(); render(); alert("Backup imported & synced successfully!");
-    } catch (err) { alert("Error reading file."); }
+      save();
+      render();
+      alert("🎉 Backup imported & synced successfully!");
+    } catch (err) {
+      alert("❌ Error reading file. Make sure it's a valid backup JSON.");
+    }
   };
   reader.readAsText(file);
 }
 
-// Chaos features logic
-const oracleQuotes = [
-  "“You will encounter one crooked piece of MDF.”",
-  "“Buy the fucking screws before starting.”",
-  "“You will measure twice. Probably.”",
-  "“The stud finder will beep constantly and lie to you.”",
-  "“Your thumbs will get trapped under the TV bracket.”",
-  "“Extra cable ties solve 90% of architectural anxiety.”"
-];
-
-const roastQuotes = {
-  "Mitre Saw": "“You could cut the CLS by hand, but apparently we're living in 2026.”",
-  "Fireplace": "“Because staring at a blank wall wasn't expensive enough.”",
-  "Bose Soundbar": "“Cinematic audio so loud your neighbors will join the build.”",
-  "Moisture resistant MDF": "“Heavy enough to test your structural integrity and your patience.”"
+let cropState = {
+  img: null,
+  x: 0,
+  y: 0,
+  baseScale: 1,
+  userZoom: 1,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  callback: null
 };
-
-function consultOracle() {
-  const rand = oracleQuotes[Math.floor(Math.random() * oracleQuotes.length)];
-  document.getElementById("oracleText").textContent = rand;
-}
-
-function pickRandomNextBuy() {
-  const need = items.filter(x => !x.bought);
-  if(need.length === 0) {
-    document.getElementById("nextBuyRecommendation").textContent = "You've bought everything! Go build it!";
-    return;
-  }
-  const item = need[Math.floor(Math.random() * need.length)];
-  const roast = roastQuotes[item.name] || `“${item.name}? Essential. Absolutely essential.”`;
-  document.getElementById("nextBuyRecommendation").innerHTML = `<b>${item.name} (${money((item.price||0)*(item.qty||1))})</b><br><span style="color:var(--accent)">${roast}</span>`;
-}
-
-let fireplaceActive = false;
-function toggleFireplaceMode() {
-  fireplaceActive = !fireplaceActive;
-  const btn = document.getElementById("fireToggleBtn");
-  if(fireplaceActive) {
-    btn.classList.add("active");
-    btn.textContent = "🔥 FIREPLACE: ON";
-    document.documentElement.style.setProperty('--fire-glow', 'rgba(249, 115, 22, 0.15)');
-  } else {
-    btn.classList.remove("active");
-    btn.textContent = "🔥 Fireplace: OFF";
-    document.documentElement.style.setProperty('--fire-glow', 'transparent');
-  }
-}
-
-// Cropper setup
-let cropState = { img: null, x: 0, y: 0, baseScale: 1, userZoom: 1, isDragging: false, startX: 0, startY: 0, callback: null };
 
 function openCropper(imageSrc, onCroppedCallback) {
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.onload = () => {
-    cropState.img = img; cropState.userZoom = 1; cropState.x = 0; cropState.y = 0; cropState.callback = onCroppedCallback;
-    document.getElementById("zoomRange").value = "1";
+    cropState.img = img;
+    cropState.userZoom = 1;
+    cropState.x = 0;
+    cropState.y = 0;
+    cropState.callback = onCroppedCallback;
+    
+    const zoomSlider = document.getElementById("zoomRange");
+    zoomSlider.min = "0.1";
+    zoomSlider.max = "5";
+    zoomSlider.step = "0.02";
+    zoomSlider.value = "1";
+    
     document.getElementById("cropperModal").classList.add("open");
     drawCropCanvas();
   };
   img.src = imageSrc;
 }
 
-function closeCropper() { document.getElementById("cropperModal").classList.remove("open"); }
+function closeCropper() {
+  document.getElementById("cropperModal").classList.remove("open");
+}
 
 function drawCropCanvas() {
   const canvas = document.getElementById("cropCanvas");
   const ctx = canvas.getContext("2d");
   const box = document.getElementById("cropBox");
+  
   canvas.width = box.clientWidth || 440;
   canvas.height = Math.round(canvas.width * (180 / 290));
+
   if (!cropState.img) return;
+
   const scaleX = canvas.width / cropState.img.width;
   const scaleY = canvas.height / cropState.img.height;
   cropState.baseScale = Math.min(scaleX, scaleY);
+
   const effectiveScale = cropState.baseScale * cropState.userZoom;
+
   const w = cropState.img.width * effectiveScale;
   const h = cropState.img.height * effectiveScale;
+
   const drawX = (canvas.width - w) / 2 + cropState.x;
   const drawY = (canvas.height - h) / 2 + cropState.y;
+
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(cropState.img, drawX, drawY, w, h);
@@ -1316,70 +1161,85 @@ function applyCrop() {
 }
 
 const cropBox = document.getElementById("cropBox");
-document.getElementById("zoomRange").addEventListener("input", (e) => {
+const zoomRange = document.getElementById("zoomRange");
+
+zoomRange.addEventListener("input", (e) => {
   cropState.userZoom = parseFloat(e.target.value);
   drawCropCanvas();
 });
 
 cropBox.addEventListener("mousedown", (e) => {
-  cropState.isDragging = true; cropState.startX = e.clientX - cropState.x; cropState.startY = e.clientY - cropState.y;
+  cropState.isDragging = true;
+  cropState.startX = e.clientX - cropState.x;
+  cropState.startY = e.clientY - cropState.y;
 });
+
 window.addEventListener("mousemove", (e) => {
   if (!cropState.isDragging) return;
-  cropState.x = e.clientX - cropState.startX; cropState.y = e.clientY - cropState.startY;
+  cropState.x = e.clientX - cropState.startX;
+  cropState.y = e.clientY - cropState.startY;
   drawCropCanvas();
 });
+
 window.addEventListener("mouseup", () => { cropState.isDragging = false; });
+
+cropBox.addEventListener("touchstart", (e) => {
+  if(e.touches.length === 1) {
+    cropState.isDragging = true;
+    cropState.startX = e.touches[0].clientX - cropState.x;
+    cropState.startY = e.touches[0].clientY - cropState.y;
+  }
+});
+
+window.addEventListener("touchmove", (e) => {
+  if (!cropState.isDragging || e.touches.length !== 1) return;
+  cropState.x = e.touches[0].clientX - cropState.x;
+  cropState.y = e.touches[0].clientY - cropState.startY;
+  drawCropCanvas();
+});
+
+window.addEventListener("touchend", () => { cropState.isDragging = false; });
 
 document.getElementById("editImgFile").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if(file) {
     const reader = new FileReader();
-    reader.onload = (evt) => { openCropper(evt.target.result, (b64) => { document.getElementById("editImgUrl").value = b64; }); };
+    reader.onload = (evt) => {
+      openCropper(evt.target.result, (croppedBase64) => {
+        document.getElementById("editImgUrl").value = croppedBase64;
+      });
+    };
     reader.readAsDataURL(file);
   }
 });
 
 function triggerCropForItem() {
   const url = document.getElementById("editImgUrl").value.trim();
-  if(!url) { alert("Provide an image first."); return; }
-  openCropper(url, (b64) => { document.getElementById("editImgUrl").value = b64; });
-}
-
-document.getElementById("tutImageFile").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if(file) {
-    const reader = new FileReader();
-    reader.onload = (evt) => { openCropper(evt.target.result, (b64) => { document.getElementById("tutImageUrl").value = b64; }); };
-    reader.readAsDataURL(file);
-  }
-});
-
-function triggerCropForTut() {
-  const url = document.getElementById("tutImageUrl").value.trim();
-  if(!url) { alert("Provide an image first."); return; }
-  openCropper(url, (b64) => { document.getElementById("tutImageUrl").value = b64; });
+  if(!url) { alert("Please provide an image file or image URL first to crop."); return; }
+  openCropper(url, (croppedBase64) => {
+    document.getElementById("editImgUrl").value = croppedBase64;
+  });
 }
 
 function initRefImage(){
   const savedRef = localStorage.getItem(refKey);
-  if(savedRef){ document.getElementById("referenceImgDisplay").src = savedRef; }
+  if(savedRef){
+    document.getElementById("referenceImgDisplay").src = savedRef;
+  }
 }
 
 function triggerRefUpload(){
-  if (!currentUser) return;
   document.getElementById("refImageInput").click();
 }
 
 function uploadRefImage(e){
-  if (!currentUser) return;
   const file = e.target.files[0];
   if(file){
     const reader = new FileReader();
     reader.onload = function(evt){
-      openCropper(evt.target.result, (b64) => {
-        document.getElementById("referenceImgDisplay").src = b64;
-        localStorage.setItem(refKey, b64);
+      openCropper(evt.target.result, (croppedBase64) => {
+        document.getElementById("referenceImgDisplay").src = croppedBase64;
+        localStorage.setItem(refKey, croppedBase64);
         save();
       });
     };
@@ -1387,9 +1247,10 @@ function uploadRefImage(e){
   }
 }
 
+// Modal handling logic for items, tutorials, and notes
 let editingIndex = null;
+
 function openModal(index = null) {
-  if (!currentUser) return;
   editingIndex = index;
   const modal = document.getElementById("modal");
   if (index !== null) {
@@ -1414,40 +1275,52 @@ function openModal(index = null) {
   modal.classList.add("open");
 }
 
-function closeModal() { document.getElementById("modal").classList.remove("open"); }
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+}
 
 function saveItem() {
-  if (!currentUser) return;
   const name = document.getElementById("editName").value.trim();
   const qty = parseInt(document.getElementById("editQty").value) || 1;
   const price = parseFloat(document.getElementById("editPrice").value) || 0;
   const link = document.getElementById("editLink").value.trim();
   const note = document.getElementById("editNote").value.trim();
   const img = document.getElementById("editImgUrl").value.trim();
+
   if (!name) { alert("Please enter an item name"); return; }
+
   const itemData = { name, qty, price, link, note, img };
   if (editingIndex !== null) {
     itemData.bought = items[editingIndex].bought;
     items[editingIndex] = itemData;
-  } else { items.push(itemData); }
-  save(); closeModal(); render();
+  } else {
+    items.push(itemData);
+  }
+
+  save();
+  closeModal();
+  render();
 }
 
 function toggleBuy(index) {
-  if (!currentUser) return;
   items[index].bought = !items[index].bought;
-  save(); render();
+  save();
+  render();
 }
 
 function deleteItem(index) {
-  if (!currentUser) return;
-  if (confirm("Delete this item?")) { items.splice(index, 1); save(); render(); }
+  if (confirm("Delete this item?")) {
+    items.splice(index, 1);
+    save();
+    render();
+  }
 }
 
+// Tutorial modal handlers
 let editingTutIndex = null;
 function openTutModal(index = null) {
-  if (!currentUser) return;
   editingTutIndex = index;
+  const modal = document.getElementById("tutModal");
   if (index !== null) {
     const t = tutorials[index];
     document.getElementById("tutModalTitle").textContent = "Edit Tutorial";
@@ -1463,44 +1336,70 @@ function openTutModal(index = null) {
     document.getElementById("tutImageUrl").value = "";
   }
   document.getElementById("tutImageFile").value = "";
-  document.getElementById("tutModal").classList.add("open");
+  modal.classList.add("open");
 }
 
-function closeTutModal() { document.getElementById("tutModal").classList.remove("open"); }
+function closeTutModal() {
+  document.getElementById("tutModal").classList.remove("open");
+}
+
+document.getElementById("tutImageFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(file) {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      openCropper(evt.target.result, (croppedBase64) => {
+        document.getElementById("tutImageUrl").value = croppedBase64;
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+});
 
 function saveTutorial() {
-  if (!currentUser) return;
   const title = document.getElementById("tutTitle").value.trim();
   const link = document.getElementById("tutLink").value.trim();
   const note = document.getElementById("tutNote").value.trim();
   const img = document.getElementById("tutImageUrl").value.trim();
+
   if (!title) { alert("Please enter a title"); return; }
+
   const tutData = { title, link, note, img };
-  if (editingTutIndex !== null) { tutorials[editingTutIndex] = tutData; }
-  else { tutorials.push(tutData); }
-  saveTut(); closeTutModal(); render();
+  if (editingTutIndex !== null) {
+    tutorials[editingTutIndex] = tutData;
+  } else {
+    tutorials.push(tutData);
+  }
+  saveTut();
+  closeTutModal();
+  render();
 }
 
 function deleteTutorial(index) {
-  if (!currentUser) return;
-  if (confirm("Delete this tutorial?")) { tutorials.splice(index, 1); saveTut(); render(); }
+  if (confirm("Delete this tutorial?")) {
+    tutorials.splice(index, 1);
+    saveTut();
+    render();
+  }
 }
 
+// Notes handlers
 function addQuickNote() {
-  if (!currentUser) return;
   const title = document.getElementById("quickNoteTitle").value.trim();
   const category = document.getElementById("quickNoteCategory").value;
   const content = document.getElementById("quickNoteContent").value.trim();
-  if (!title || !content) { alert("Enter title and content."); return; }
+
+  if (!title || !content) { alert("Please enter both title and content for your note."); return; }
+
   notes.unshift({ title, category, content });
   document.getElementById("quickNoteTitle").value = "";
   document.getElementById("quickNoteContent").value = "";
-  saveNotes(); render();
+  saveNotes();
+  render();
 }
 
 let editingNoteIndex = null;
 function editNote(index) {
-  if (!currentUser) return;
   editingNoteIndex = index;
   const n = notes[index];
   document.getElementById("editNoteTitle").value = n.title;
@@ -1509,73 +1408,51 @@ function editNote(index) {
   document.getElementById("noteModal").classList.add("open");
 }
 
-function closeNoteModal() { document.getElementById("noteModal").classList.remove("open"); }
+function closeNoteModal() {
+  document.getElementById("noteModal").classList.remove("open");
+}
 
 function saveEditNote() {
-  if (!currentUser) return;
   const title = document.getElementById("editNoteTitle").value.trim();
   const category = document.getElementById("editNoteCategory").value;
   const content = document.getElementById("editNoteContent").value.trim();
+
   if (!title || !content) { alert("Fields cannot be empty"); return; }
+
   notes[editingNoteIndex] = { title, category, content };
-  saveNotes(); closeNoteModal(); render();
+  saveNotes();
+  closeNoteModal();
+  render();
 }
 
 function deleteNote(index) {
-  if (!currentUser) return;
-  if (confirm("Delete this note?")) { notes.splice(index, 1); saveNotes(); render(); }
+  if (confirm("Delete this note?")) {
+    notes.splice(index, 1);
+    saveNotes();
+    render();
+  }
 }
 
-// Tab navigation handler
+// Tabs navigation
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".tab-view").forEach(v => v.classList.remove("active"));
     btn.classList.add("active");
     const target = btn.getAttribute("data-tab");
-    
-    if(target === "need") {
-      document.getElementById("shoppingView").classList.add("active");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    if(target === "bought") {
-      document.getElementById("shoppingView").classList.add("active");
-      const boughtElem = document.getElementById("boughtSection");
-      if(boughtElem) { boughtElem.scrollIntoView({ behavior: 'smooth' }); }
-    }
-    if(target === "tutorials") {
-      document.getElementById("tutorialsView").classList.add("active");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    if(target === "notes") {
-      document.getElementById("notesView").classList.add("active");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    if(target === "chaos") {
-      document.getElementById("chaosView").classList.add("active");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    if(target === "need") document.getElementById("shoppingView").classList.add("active");
+    if(target === "bought") document.getElementById("shoppingView").classList.add("active");
+    if(target === "tutorials") document.getElementById("tutorialsView").classList.add("active");
+    if(target === "notes") document.getElementById("notesView").classList.add("active");
   });
 });
-
-// Hide/Show Header on Scroll
-let lastScrollTop = 0;
-const header = document.getElementById("mainHeader");
-window.addEventListener("scroll", () => {
-  let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  if (scrollTop > lastScrollTop && scrollTop > 80) { header.classList.add("header-hidden"); }
-  else { header.classList.remove("header-hidden"); }
-  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-}, { passive: true });
-
-let draggedIndex = null;
 
 function render() {
   const need = items.filter(x => !x.bought);
   const bought = items.filter(x => x.bought);
 
   document.getElementById("count").textContent = items.length;
-  document.getElementById("boughtCount").textContent = `${bought.length}/${items.length}`;
+  document.getElementById("boughtCount").textContent = bought.length;
 
   const spent = bought.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
   const remaining = need.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
@@ -1584,39 +1461,7 @@ function render() {
   document.getElementById("spent").textContent = money(spent);
   document.getElementById("remaining").textContent = money(remaining);
   document.getElementById("grand").textContent = money(grand);
-  document.getElementById("progress").textContent = `${bought.length}/${items.length} bought`;
-
-  // Budget Panic Meter Logic
-  const panicBox = document.getElementById(" budgetPanicText");
-  if(spent < 200) {
-    panicBox.textContent = "🟢 We're chilling";
-  } else if(spent < 600) {
-    panicBox.textContent = "🟡 Getting expensive";
-  } else if(spent < 1000) {
-    panicBox.textContent = "🟠 Uh oh";
-  } else {
-    panicBox.textContent = "🔴 Daniel has made a terrible financial decision";
-  }
-
-  // Achievements Logic
-  if(bought.length >= 1) document.getElementById("ach-first").classList.add("unlocked");
-  else document.getElementById("ach-first").classList.remove("unlocked");
-
-  if(spent >= 500) document.getElementById("ach-500").classList.add("unlocked");
-  else document.getElementById("ach-500").classList.remove("unlocked");
-
-  if(spent >= 1000) document.getElementById("ach-1000").classList.add("unlocked");
-  else document.getElementById("ach-1000").classList.remove("unlocked");
-
-  const hasFire = items.some(x => x.name.toLowerCase().includes("fireplace") && x.bought);
-  if(hasFire) document.getElementById("ach-fire").classList.add("unlocked");
-  else document.getElementById("ach-fire").classList.remove("unlocked");
-
-  if(items.length > 0 && bought.length === items.length) {
-    document.getElementById("ach-unicorn").classList.add("unlocked");
-  } else {
-    document.getElementById("ach-unicorn").classList.remove("unlocked");
-  }
+  document.getElementById("progress").textContent = `${Math.round((bought.length / (items.length || 1)) * 100)}% Complete`;
 
   // Render Need Grid
   const needGrid = document.getElementById("needGrid");
@@ -1625,25 +1470,7 @@ function render() {
     const originalIndex = items.indexOf(item);
     const div = document.createElement("div");
     div.className = "item";
-    div.draggable = currentUser !== null;
-
-    if (currentUser) {
-      div.addEventListener("dragstart", () => { draggedIndex = originalIndex; div.classList.add("dragging"); });
-      div.addEventListener("dragend", () => { draggedIndex = null; div.classList.remove("dragging"); document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over")); });
-      div.addEventListener("dragover", (e) => { e.preventDefault(); div.classList.add("drag-over"); });
-      div.addEventListener("dragleave", () => { div.classList.remove("drag-over"); });
-      div.addEventListener("drop", (e) => {
-        e.preventDefault(); div.classList.remove("drag-over");
-        if (draggedIndex !== null && draggedIndex !== originalIndex) {
-          const movedItem = items.splice(draggedIndex, 1)[0];
-          items.splice(originalIndex, 0, movedItem);
-          save(); render();
-        }
-      });
-    }
-
     div.innerHTML = `
-      ${currentUser ? `<div class="drag-handle" title="Drag to reorder">::</div>` : ''}
       ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
       <div class="row">
         <div>
@@ -1655,9 +1482,9 @@ function render() {
       </div>
       <div class="meta">
         <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
-        <div class="admin-only" style="display:flex; gap:6px">
-          <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
-          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
+        <div style="display:flex; gap:6px">
+          <button class="action edit" onclick="openModal(${originalIndex})">✏️</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
           <button class="action buy" onclick="toggleBuy(${originalIndex})">Mark Bought ✓</button>
         </div>
       </div>
@@ -1665,13 +1492,11 @@ function render() {
     needGrid.appendChild(div);
   });
 
-  if (currentUser) {
-    const addCardNeed = document.createElement("div");
-    addCardNeed.className = "add-card";
-    addCardNeed.innerHTML = "+ Add Item";
-    addCardNeed.onclick = () => openModal();
-    needGrid.appendChild(addCardNeed);
-  }
+  const addCardNeed = document.createElement("div");
+  addCardNeed.className = "add-card";
+  addCardNeed.innerHTML = "+ Add Item";
+  addCardNeed.onclick = () => openModal();
+  needGrid.appendChild(addCardNeed);
 
   // Render Bought Grid
   const boughtGrid = document.getElementById("boughtGrid");
@@ -1680,25 +1505,7 @@ function render() {
     const originalIndex = items.indexOf(item);
     const div = document.createElement("div");
     div.className = "item bought";
-    div.draggable = currentUser !== null;
-
-    if (currentUser) {
-      div.addEventListener("dragstart", () => { draggedIndex = originalIndex; div.classList.add("dragging"); });
-      div.addEventListener("dragend", () => { draggedIndex = null; div.classList.remove("dragging"); document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over")); });
-      div.addEventListener("dragover", (e) => { e.preventDefault(); div.classList.add("drag-over"); });
-      div.addEventListener("dragleave", () => { div.classList.remove("drag-over"); });
-      div.addEventListener("drop", (e) => {
-        e.preventDefault(); div.classList.remove("drag-over");
-        if (draggedIndex !== null && draggedIndex !== originalIndex) {
-          const movedItem = items.splice(draggedIndex, 1)[0];
-          items.splice(originalIndex, 0, movedItem);
-          save(); render();
-        }
-      });
-    }
-
     div.innerHTML = `
-      ${currentUser ? `<div class="drag-handle" title="Drag to reorder">::</div>` : ''}
       ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
       <div class="row">
         <div>
@@ -1710,9 +1517,9 @@ function render() {
       </div>
       <div class="meta">
         <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
-        <div class="admin-only" style="display:flex; gap:6px">
-          <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
-          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
+        <div style="display:flex; gap:6px">
+          <button class="action edit" onclick="openModal(${originalIndex})">✏️</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
           <button class="action undo" onclick="toggleBuy(${originalIndex})">Undo</button>
         </div>
       </div>
@@ -1733,11 +1540,11 @@ function render() {
           <div style="font-weight:700; font-size:16px; margin-bottom:6px">${t.title}</div>
           ${t.note ? `<div style="font-size:13px; color:var(--text-muted); margin-bottom:10px">${t.note}</div>` : ''}
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; border-top:1px solid var(--border-color); pt:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; pt:10px; border-top:1px solid var(--border-color)">
           ${t.link ? `<a href="${t.link}" target="_blank">Watch Guide ↗</a>` : '<span></span>'}
-          <div class="admin-only" style="display:flex; gap:6px">
-            <button class="action edit" onclick="openTutModal(${index})">✎</button>
-            <button class="action delete-btn" onclick="deleteTutorial(${index})">🗑</button>
+          <div style="display:flex; gap:6px">
+            <button class="action edit" onclick="openTutModal(${index})">✏️</button>
+            <button class="action delete-btn" onclick="deleteTutorial(${index})">🗑️</button>
           </div>
         </div>
       </div>
@@ -1745,13 +1552,11 @@ function render() {
     tutGrid.appendChild(div);
   });
 
-  if (currentUser) {
-    const addCardTut = document.createElement("div");
-    addCardTut.className = "add-card";
-    addCardTut.innerHTML = "+ Add Tutorial";
-    addCardTut.onclick = () => openTutModal();
-    tutGrid.appendChild(addCardTut);
-  }
+  const addCardTut = document.createElement("div");
+  addCardTut.className = "add-card";
+  addCardTut.innerHTML = "+ Add Tutorial";
+  addCardTut.onclick = () => openTutModal();
+  tutGrid.appendChild(addCardTut);
 
   // Render Notes Stream
   const notesStream = document.getElementById("notesStream");
@@ -1765,17 +1570,17 @@ function render() {
         <div class="entry-badge">${n.category}</div>
       </div>
       <div class="entry-body">${n.content}</div>
-      <div class="entry-footer admin-only">
-        <button class="action edit" onclick="editNote(${index})">✎ Edit</button>
-        <button class="action delete-btn" onclick="deleteNote(${index})">🗑 Delete</button>
+      <div class="entry-footer">
+        <button class="action edit" onclick="editNote(${index})">✏️ Edit</button>
+        <button class="action delete-btn" onclick="deleteNote(${index})">🗑️ Delete</button>
       </div>
     `;
     notesStream.appendChild(div);
   });
 }
 
+// Initial application load on startup
 window.onload = () => {
-  checkAuthStatus();
   loadFromCloud();
 };
 </script>
