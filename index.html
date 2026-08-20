@@ -669,6 +669,7 @@ a:hover { text-decoration: underline; }
   backdrop-filter: blur(12px);
   position: sticky;
   top: 90px;
+  transition: all 0.2s ease;
 }
 
 .quick-note-box h3 {
@@ -719,6 +720,40 @@ a:hover { text-decoration: underline; }
 }
 
 .add-note-btn:hover { opacity: 0.9; }
+
+/* Logged out hover overlay for Quick Add Note box */
+body.guest .quick-note-box {
+  position: relative;
+  cursor: pointer;
+}
+
+body.guest .quick-note-box .note-input-group {
+  filter: blur(3px);
+  pointer-events: none;
+  user-select: none;
+}
+
+body.guest .quick-note-box::after {
+  content: "🔒 Log in to add notes";
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-main);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+body.guest .quick-note-box:hover::after {
+  opacity: 1;
+  background: rgba(15, 23, 42, 0.85);
+}
 
 .notes-stream {
   display: flex;
@@ -985,7 +1020,7 @@ body.guest .admin-only { display: none !important; }
       <h2>📝 Project Notebook & Research</h2>
       <div class="notebook-container">
         
-        <div class="quick-note-box admin-only">
+        <div class="quick-note-box" onclick="handleQuickNoteGuestClick()">
           <h3>✍️ Quick Add Note</h3>
           <div class="note-input-group">
             <input id="quickNoteTitle" placeholder="Topic or Header...">
@@ -1016,6 +1051,12 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const ROW_ID = 1;
 
 let currentUser = null;
+
+function handleQuickNoteGuestClick() {
+  if (!currentUser) {
+    document.getElementById("authModal").classList.add("open");
+  }
+}
 
 async function checkAuthStatus() {
   const { data: { session } } = await supabaseClient.auth.getSession();
