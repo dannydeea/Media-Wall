@@ -205,6 +205,8 @@ main {
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border-color);
+  position: relative;
+  cursor: pointer;
 }
 
 .ref-img-wrap img {
@@ -213,6 +215,30 @@ main {
   max-height: 380px;
   object-fit: cover;
   padding: 0;
+  transition: transform 0.3s ease;
+}
+
+.ref-img-wrap:hover img {
+  transform: scale(1.03);
+}
+
+.ref-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.ref-img-wrap:hover .ref-img-overlay {
+  opacity: 1;
 }
 
 .ref-text h4 {
@@ -510,6 +536,82 @@ a:hover { text-decoration: underline; }
   font-weight: 800;
 }
 
+/* Lightbox styles with zoom / pan viewport */
+.lightbox-box {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  width: 95vw;
+  height: 90vh;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.lightbox-box:active {
+  cursor: grabbing;
+}
+
+.lightbox-img-wrap {
+  position: absolute;
+  transform-origin: center center;
+  transition: transform 0.05s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-img {
+  max-width: 85vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+  pointer-events: none;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 70;
+  transition: background 0.2s;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lightbox-tip {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid var(--border-color);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 70;
+}
+
 .field { margin: 14px 0; }
 
 .field label {
@@ -721,7 +823,6 @@ a:hover { text-decoration: underline; }
 
 .add-note-btn:hover { opacity: 0.9; }
 
-/* Logged out hover overlay for Quick Add Note box */
 body.guest .quick-note-box {
   position: relative;
   cursor: pointer;
@@ -832,7 +933,6 @@ body.guest .quick-note-box:hover::after {
 .tab-view { display: none; }
 .tab-view.active { display: block; }
 
-/* Control visibility for admin-only elements */
 body.guest .admin-only { display: none !important; }
 
 @media(max-width: 900px) {
@@ -921,6 +1021,17 @@ body.guest .admin-only { display: none !important; }
   </div>
 </div>
 
+<!-- Fullscreen Reference Lightbox Modal with Zoom & Pan -->
+<div id="refLightboxModal" class="modal" onclick="closeRefLightbox()" style="z-index: 60; padding: 10px;">
+  <button class="lightbox-close" onclick="closeRefLightbox()">✕</button>
+  <div class="lightbox-box" id="lightboxBox" onclick="event.stopPropagation()">
+    <div class="lightbox-img-wrap" id="lightboxImgWrap">
+      <img id="refLightboxImg" class="lightbox-img" src="" alt="Expanded Reference Media Wall Design">
+    </div>
+    <div class="lightbox-tip">💡 Scroll to zoom • Click & drag to pan around</div>
+  </div>
+</div>
+
 <!-- Add / Edit Tutorial Modal -->
 <div id="tutModal" class="modal">
   <div class="modalbox">
@@ -979,8 +1090,9 @@ body.guest .admin-only { display: none !important; }
         <input type="file" id="refImageInput" accept="image/*" style="display:none" onchange="uploadRefImage(event)">
       </div>
       <div class="reference-content">
-        <div class="ref-img-wrap">
+        <div class="ref-img-wrap" onclick="openRefLightbox()" title="Click to expand">
           <img id="referenceImgDisplay" src="" alt="Reference Media Wall Design">
+          <div class="ref-img-overlay">Click to expand</div>
         </div>
         <div class="ref-text">
           <h4>Media Wall & Fireplace Concept</h4>
@@ -1140,7 +1252,7 @@ let notes = [
 const refKey="mediaWallRefImage_v1";
 
 async function save() {
-  if (!currentUser) return; // Block guests from syncing writes
+  if (!currentUser) return;
   try {
     const backup = {
       items: items,
@@ -1223,6 +1335,92 @@ function importData(e) {
   };
   reader.readAsText(file);
 }
+
+// Lightbox Zoom & Pan State Management
+let lbZoom = 1;
+let lbPanX = 0;
+let lbPanY = 0;
+let lbIsDragging = false;
+let lbStartX = 0;
+let lbStartY = 0;
+
+function openRefLightbox() {
+  const imgSrc = document.getElementById("referenceImgDisplay").src;
+  if (!imgSrc) return;
+  
+  document.getElementById("refLightboxImg").src = imgSrc;
+  lbZoom = 1;
+  lbPanX = 0;
+  lbPanY = 0;
+  updateLightboxTransform();
+  
+  document.getElementById("refLightboxModal").classList.add("open");
+}
+
+function closeRefLightbox() {
+  document.getElementById("refLightboxModal").classList.remove("open");
+}
+
+function updateLightboxTransform() {
+  const wrap = document.getElementById("lightboxImgWrap");
+  wrap.style.transform = `translate(${lbPanX}px, ${lbPanY}px) scale(${lbZoom})`;
+}
+
+// Lightbox Wheel Zoom
+const lightboxBox = document.getElementById("lightboxBox");
+lightboxBox.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const zoomFactor = 1.15;
+  if (e.deltaY < 0) {
+    lbZoom = Math.min(lbZoom * zoomFactor, 10); // Max zoom 10x
+  } else {
+    lbZoom = Math.max(lbZoom / zoomFactor, 1); // Min zoom 1x (initial fit)
+    if (lbZoom === 1) { lbPanX = 0; lbPanY = 0; } // Reset pan if fully zoomed out
+  }
+  updateLightboxTransform();
+}, { passive: false });
+
+// Lightbox Mouse Drag Pan
+lightboxBox.addEventListener("mousedown", (e) => {
+  if (lbZoom > 1) {
+    lbIsDragging = true;
+    lbStartX = e.clientX - lbPanX;
+    lbStartY = e.clientY - lbPanY;
+  }
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (!lbIsDragging) return;
+  lbPanX = e.clientX - lbStartX;
+  lbPanY = e.clientY - lbStartY;
+  updateLightboxTransform();
+});
+
+window.addEventListener("mouseup", () => {
+  lbIsDragging = false;
+});
+
+// Touch support for pinch/pan on mobile
+let touchStartDist = 0;
+lightboxBox.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 1 && lbZoom > 1) {
+    lbIsDragging = true;
+    lbStartX = e.touches[0].clientX - lbPanX;
+    lbStartY = e.touches[0].clientY - lbPanY;
+  }
+});
+
+lightboxBox.addEventListener("touchmove", (e) => {
+  if (lbIsDragging && e.touches.length === 1) {
+    lbPanX = e.touches[0].clientX - lbStartX;
+    lbPanY = e.touches[0].clientY - lbStartY;
+    updateLightboxTransform();
+  }
+});
+
+lightboxBox.addEventListener("touchend", () => {
+  lbIsDragging = false;
+});
 
 let cropState = {
   img: null,
@@ -1606,7 +1804,6 @@ document.querySelectorAll("nav button").forEach(btn => {
   });
 });
 
-// Smart header hide/show on scroll
 let lastScrollY = window.scrollY;
 const headerEl = document.getElementById("mainHeader");
 
@@ -1638,7 +1835,6 @@ function render() {
   document.getElementById("grand").textContent = money(grand);
   document.getElementById("progress").textContent = `${bought.length}/${items.length} bought`;
 
-  // Render Need Grid
   const needGrid = document.getElementById("needGrid");
   needGrid.innerHTML = "";
   need.forEach((item) => {
@@ -1711,7 +1907,6 @@ function render() {
     needGrid.appendChild(addCardNeed);
   }
 
-  // Render Bought Grid
   const boughtGrid = document.getElementById("boughtGrid");
   boughtGrid.innerHTML = "";
   bought.forEach((item) => {
@@ -1776,7 +1971,6 @@ function render() {
     boughtGrid.appendChild(div);
   });
 
-  // Render Tutorials Grid
   const tutGrid = document.getElementById("tutorialsGrid");
   tutGrid.innerHTML = "";
   tutorials.forEach((t, index) => {
@@ -1809,7 +2003,6 @@ function render() {
     tutGrid.appendChild(addCardTut);
   }
 
-  // Render Notes Stream
   const notesStream = document.getElementById("notesStream");
   notesStream.innerHTML = "";
   notes.forEach((n, index) => {
@@ -1820,7 +2013,7 @@ function render() {
         <div class="entry-title">${n.title}</div>
         <div class="entry-badge">${n.category}</div>
       </div>
-      <div class="entry-body">${n.content}</div>
+      <div class="entry-body">${n.content}<div>
       <div class="entry-footer admin-only">
         <button class="action edit" onclick="editNote(${index})">✎ Edit</button>
         <button class="action delete-btn" onclick="deleteNote(${index})">🗑 Delete</button>
