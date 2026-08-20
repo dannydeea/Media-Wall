@@ -792,16 +792,16 @@ a:hover { text-decoration: underline; }
 <header>
   <div class="top">
     <div>
-      <h1>✨ Media Wall Tracker</h1>
-      <div class="sub">Tools, materials, notes & design reference (Cloud Synced)</div>
+      <h1>Media Wall Planner</h1>
+      <div class="sub">Track items, prices, tutorials and notes</div>
     </div>
     <div id="progress"></div>
   </div>
   <nav>
     <button class="active" data-tab="need">Need to Buy</button>
-    <button data-tab="bought">Bought ✓</button>
-    <button data-tab="tutorials">Tutorials 🎥</button>
-    <button data-tab="notes">Notes 📝</button>
+    <button data-tab="bought">Bought</button>
+    <button data-tab="tutorials">Tutorials</button>
+    <button data-tab="notes">Notes</button>
   </nav>
 </header>
 
@@ -818,7 +818,7 @@ a:hover { text-decoration: underline; }
       <label>Item Thumbnail (File PNG/JPG or URL)</label>
       <input id="editImgFile" type="file" accept="image/*" style="margin-bottom:8px">
       <input id="editImgUrl" placeholder="Or paste image URL directly">
-      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForItem()">✂️ Crop / Zoom Image</button>
+      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForItem()">Crop / Zoom Image</button>
     </div>
     <div class="modalbuttons">
       <button class="cancel" onclick="closeModal()">Cancel</button>
@@ -830,7 +830,7 @@ a:hover { text-decoration: underline; }
 <!-- Interactive Crop Modal -->
 <div id="cropperModal" class="modal" style="z-index: 50;">
   <div class="modalbox" style="width: min(500px, 100%);">
-    <h3>✂️ Crop & Zoom Image</h3>
+    <h3>Crop & Zoom Image</h3>
     <p style="font-size: 12px; color: var(--text-muted); margin-top:-10px;">Drag image freely and zoom down to 0.1x. What you framed inside this box is exactly what displays on your card.</p>
     <div class="crop-container" id="cropBox">
       <canvas id="cropCanvas" class="crop-canvas"></canvas>
@@ -889,8 +889,8 @@ a:hover { text-decoration: underline; }
 
 <main>
   <div class="backup-toolbar">
-    <button class="action" onclick="exportData()">💾 Export Backup</button>
-    <button class="action" onclick="triggerImport()">📂 Import Backup</button>
+    <button class="action" onclick="exportData()">Export Backup</button>
+    <button class="action" onclick="triggerImport()">Import Backup</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
   </div>
 
@@ -898,8 +898,8 @@ a:hover { text-decoration: underline; }
     
     <div class="reference-card">
       <div class="reference-header">
-        <h3>🖼️ Project Reference Goal</h3>
-        <button class="action edit" onclick="triggerRefUpload()">Change Photo 📷</button>
+        <h3>Project Reference Goal</h3>
+        <button class="action edit" onclick="triggerRefUpload()">Change Photo</button>
         <input type="file" id="refImageInput" accept="image/*" style="display:none" onchange="uploadRefImage(event)">
       </div>
       <div class="reference-content">
@@ -922,30 +922,30 @@ a:hover { text-decoration: underline; }
     </div>
 
     <section id="needSection" class="section">
-      <h2>🛒 Need to Buy</h2>
+      <h2>Need to Buy</h2>
       <div id="needGrid" class="grid"></div>
     </section>
 
     <section id="boughtSection" class="section">
-      <h2>✅ Bought</h2>
+      <h2>Bought</h2>
       <div id="boughtGrid" class="grid"></div>
     </section>
   </div>
 
   <div id="tutorialsView" class="tab-view">
     <section class="section">
-      <h2>🎥 Video Guides & Inspiration</h2>
+      <h2>Video Guides & Inspiration</h2>
       <div id="tutorialsGrid" class="grid"></div>
     </section>
   </div>
 
   <div id="notesView" class="tab-view">
     <section class="section">
-      <h2>📝 Project Notebook & Research</h2>
+      <h2>Project Notebook & Research</h2>
       <div class="notebook-container">
         
         <div class="quick-note-box">
-          <h3>✍️ Quick Add Note</h3>
+          <h3>Quick Add Note</h3>
           <div class="note-input-group">
             <input id="quickNoteTitle" placeholder="Topic or Header...">
             <select id="quickNoteCategory">
@@ -968,6 +968,7 @@ a:hover { text-decoration: underline; }
 </main>
 
 <script>
+// --- SUPABASE SETUP ---
 const SUPABASE_URL = 'https://hqkbzdabspiajjhheupg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Bxqbz0rbb3EIXUv1iuFryw_hbU-I7F7';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1080,9 +1081,9 @@ function importData(e) {
       if (backup.referenceImage) localStorage.setItem(refKey, backup.referenceImage);
       save();
       render();
-      alert("🎉 Backup imported & synced successfully!");
+      alert("Backup imported & synced successfully!");
     } catch (err) {
-      alert("❌ Error reading file. Make sure it's a valid backup JSON.");
+      alert("Error reading file. Make sure it's a valid backup JSON.");
     }
   };
   reader.readAsText(file);
@@ -1247,7 +1248,6 @@ function uploadRefImage(e){
   }
 }
 
-// Modal handling logic for items, tutorials, and notes
 let editingIndex = null;
 
 function openModal(index = null) {
@@ -1316,7 +1316,6 @@ function deleteItem(index) {
   }
 }
 
-// Tutorial modal handlers
 let editingTutIndex = null;
 function openTutModal(index = null) {
   editingTutIndex = index;
@@ -1383,7 +1382,6 @@ function deleteTutorial(index) {
   }
 }
 
-// Notes handlers
 function addQuickNote() {
   const title = document.getElementById("quickNoteTitle").value.trim();
   const category = document.getElementById("quickNoteCategory").value;
@@ -1433,7 +1431,6 @@ function deleteNote(index) {
   }
 }
 
-// Tabs navigation
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
@@ -1447,12 +1444,14 @@ document.querySelectorAll("nav button").forEach(btn => {
   });
 });
 
+let draggedIndex = null;
+
 function render() {
   const need = items.filter(x => !x.bought);
   const bought = items.filter(x => x.bought);
 
   document.getElementById("count").textContent = items.length;
-  document.getElementById("boughtCount").textContent = bought.length;
+  document.getElementById("boughtCount").textContent = `${bought.length}/${items.length}`;
 
   const spent = bought.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
   const remaining = need.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
@@ -1470,7 +1469,41 @@ function render() {
     const originalIndex = items.indexOf(item);
     const div = document.createElement("div");
     div.className = "item";
+    div.draggable = true;
+
+    div.addEventListener("dragstart", (e) => {
+      draggedIndex = originalIndex;
+      div.classList.add("dragging");
+    });
+
+    div.addEventListener("dragend", () => {
+      draggedIndex = null;
+      div.classList.remove("dragging");
+      document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over"));
+    });
+
+    div.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      div.classList.add("drag-over");
+    });
+
+    div.addEventListener("dragleave", () => {
+      div.classList.remove("drag-over");
+    });
+
+    div.addEventListener("drop", (e) => {
+      e.preventDefault();
+      div.classList.remove("drag-over");
+      if (draggedIndex !== null && draggedIndex !== originalIndex) {
+        const movedItem = items.splice(draggedIndex, 1)[0];
+        items.splice(originalIndex, 0, movedItem);
+        save();
+        render();
+      }
+    });
+
     div.innerHTML = `
+      <div class="drag-handle" title="Drag to reorder">::</div>
       ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
       <div class="row">
         <div>
@@ -1483,8 +1516,8 @@ function render() {
       <div class="meta">
         <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
         <div style="display:flex; gap:6px">
-          <button class="action edit" onclick="openModal(${originalIndex})">✏️</button>
-          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
+          <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
           <button class="action buy" onclick="toggleBuy(${originalIndex})">Mark Bought ✓</button>
         </div>
       </div>
@@ -1505,7 +1538,41 @@ function render() {
     const originalIndex = items.indexOf(item);
     const div = document.createElement("div");
     div.className = "item bought";
+    div.draggable = true;
+
+    div.addEventListener("dragstart", (e) => {
+      draggedIndex = originalIndex;
+      div.classList.add("dragging");
+    });
+
+    div.addEventListener("dragend", () => {
+      draggedIndex = null;
+      div.classList.remove("dragging");
+      document.querySelectorAll(".item").forEach(el => el.classList.remove("drag-over"));
+    });
+
+    div.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      div.classList.add("drag-over");
+    });
+
+    div.addEventListener("dragleave", () => {
+      div.classList.remove("drag-over");
+    });
+
+    div.addEventListener("drop", (e) => {
+      e.preventDefault();
+      div.classList.remove("drag-over");
+      if (draggedIndex !== null && draggedIndex !== originalIndex) {
+        const movedItem = items.splice(draggedIndex, 1)[0];
+        items.splice(originalIndex, 0, movedItem);
+        save();
+        render();
+      }
+    });
+
     div.innerHTML = `
+      <div class="drag-handle" title="Drag to reorder">::</div>
       ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
       <div class="row">
         <div>
@@ -1518,8 +1585,8 @@ function render() {
       <div class="meta">
         <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
         <div style="display:flex; gap:6px">
-          <button class="action edit" onclick="openModal(${originalIndex})">✏️</button>
-          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
+          <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
           <button class="action undo" onclick="toggleBuy(${originalIndex})">Undo</button>
         </div>
       </div>
@@ -1543,8 +1610,8 @@ function render() {
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; pt:10px; border-top:1px solid var(--border-color)">
           ${t.link ? `<a href="${t.link}" target="_blank">Watch Guide ↗</a>` : '<span></span>'}
           <div style="display:flex; gap:6px">
-            <button class="action edit" onclick="openTutModal(${index})">✏️</button>
-            <button class="action delete-btn" onclick="deleteTutorial(${index})">🗑️</button>
+            <button class="action edit" onclick="openTutModal(${index})">✎</button>
+            <button class="action delete-btn" onclick="deleteTutorial(${index})">🗑</button>
           </div>
         </div>
       </div>
@@ -1571,15 +1638,14 @@ function render() {
       </div>
       <div class="entry-body">${n.content}</div>
       <div class="entry-footer">
-        <button class="action edit" onclick="editNote(${index})">✏️ Edit</button>
-        <button class="action delete-btn" onclick="deleteNote(${index})">🗑️ Delete</button>
+        <button class="action edit" onclick="editNote(${index})">✎ Edit</button>
+        <button class="action delete-btn" onclick="deleteNote(${index})">🗑 Delete</button>
       </div>
     `;
     notesStream.appendChild(div);
   });
 }
 
-// Initial application load on startup
 window.onload = () => {
   loadFromCloud();
 };
