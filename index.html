@@ -34,20 +34,27 @@ body {
 }
 
 header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 20;
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease-in-out;
+}
+
+header.header-hidden {
+  transform: translateY(-100%);
 }
 
 .top {
   max-width: 1200px;
   margin: auto;
-  padding: 20px 20px 12px;
+  padding: 16px 20px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -57,7 +64,7 @@ header {
 
 h1 {
   margin: 0;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
   -webkit-background-clip: text;
@@ -66,8 +73,8 @@ h1 {
 
 .sub {
   color: var(--text-muted);
-  font-size: 13px;
-  margin-top: 4px;
+  font-size: 12px;
+  margin-top: 2px;
 }
 
 .header-right {
@@ -80,21 +87,21 @@ h1 {
   background: rgba(129, 140, 248, 0.1);
   border: 1px solid rgba(129, 140, 248, 0.2);
   color: var(--accent);
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 20px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .auth-btn {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   transition: all 0.2s;
 }
 
@@ -105,7 +112,7 @@ h1 {
 nav {
   max-width: 1200px;
   margin: auto;
-  padding: 0 20px 16px;
+  padding: 0 20px 12px;
   display: flex;
   gap: 10px;
   overflow: auto;
@@ -115,11 +122,11 @@ nav button {
   border: 1px solid var(--border-color);
   background: rgba(30, 41, 59, 0.5);
   color: var(--text-muted);
-  padding: 10px 18px;
+  padding: 8px 16px;
   border-radius: 12px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   white-space: nowrap;
   transition: all 0.2s ease;
 }
@@ -140,7 +147,8 @@ nav button.active {
 main {
   max-width: 1200px;
   margin: auto;
-  padding: 24px 20px 80px;
+  padding: 140px 20px 80px; /* Offset for fixed header */
+  transition: padding-top 0.3s ease-in-out;
 }
 
 .backup-toolbar {
@@ -807,7 +815,7 @@ body.guest .admin-only { display: none !important; }
 </style>
 </head>
 <body class="guest">
-<header>
+<header id="mainHeader">
   <div class="top">
     <div>
       <h1>Media Wall Planner</h1>
@@ -1094,7 +1102,7 @@ let notes = [
 const refKey="mediaWallRefImage_v1";
 
 async function save() {
-  if (!currentUser) return; // Block guests from syncing writes
+  if (!currentUser) return;
   try {
     const backup = {
       items: items,
@@ -1541,18 +1549,51 @@ function deleteNote(index) {
   }
 }
 
+// Tab navigation handler
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".tab-view").forEach(v => v.classList.remove("active"));
     btn.classList.add("active");
     const target = btn.getAttribute("data-tab");
-    if(target === "need") document.getElementById("shoppingView").classList.add("active");
-    if(target === "bought") document.getElementById("shoppingView").classList.add("active");
-    if(target === "tutorials") document.getElementById("tutorialsView").classList.add("active");
-    if(target === "notes") document.getElementById("notesView").classList.add("active");
+    
+    if(target === "need") {
+      document.getElementById("shoppingView").classList.add("active");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if(target === "bought") {
+      document.getElementById("shoppingView").classList.add("active");
+      // Scroll down directly to the bought section
+      const boughtElem = document.getElementById("boughtSection");
+      if(boughtElem) {
+        boughtElem.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    if(target === "tutorials") {
+      document.getElementById("tutorialsView").classList.add("active");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if(target === "notes") {
+      document.getElementById("notesView").classList.add("active");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   });
 });
+
+// Hide/Show Header on Scroll (Facebook style)
+let lastScrollTop = 0;
+const header = document.getElementById("mainHeader");
+window.addEventListener("scroll", () => {
+  let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  if (scrollTop > lastScrollTop && scrollTop > 80) {
+    // Scrolling Down
+    header.classList.add("header-hidden");
+  } else {
+    // Scrolling Up
+    header.classList.remove("header-hidden");
+  }
+  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+}, { passive: true });
 
 let draggedIndex = null;
 
