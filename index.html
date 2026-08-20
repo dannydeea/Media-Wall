@@ -857,6 +857,7 @@ a:hover { text-decoration: underline; }
       <label>Thumbnail (Image File or Image URL)</label>
       <input id="tutImageFile" type="file" accept="image/*" style="margin-bottom:8px">
       <input id="tutImageUrl" placeholder="Or paste image URL directly">
+      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForTut()">Crop / Zoom Thumbnail</button>
     </div>
     <div class="modalbuttons">
       <button class="cancel" onclick="closeTutModal()">Cancel</button>
@@ -1222,6 +1223,27 @@ function triggerCropForItem() {
   });
 }
 
+document.getElementById("tutImageFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(file) {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      openCropper(evt.target.result, (croppedBase64) => {
+        document.getElementById("tutImageUrl").value = croppedBase64;
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+function triggerCropForTut() {
+  const url = document.getElementById("tutImageUrl").value.trim();
+  if(!url) { alert("Please provide an image file or image URL first to crop."); return; }
+  openCropper(url, (croppedBase64) => {
+    document.getElementById("tutImageUrl").value = croppedBase64;
+  });
+}
+
 function initRefImage(){
   const savedRef = localStorage.getItem(refKey);
   if(savedRef){
@@ -1342,19 +1364,6 @@ function closeTutModal() {
   document.getElementById("tutModal").classList.remove("open");
 }
 
-document.getElementById("tutImageFile").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if(file) {
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      openCropper(evt.target.result, (croppedBase64) => {
-        document.getElementById("tutImageUrl").value = croppedBase64;
-      });
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
 function saveTutorial() {
   const title = document.getElementById("tutTitle").value.trim();
   const link = document.getElementById("tutLink").value.trim();
@@ -1460,7 +1469,7 @@ function render() {
   document.getElementById("spent").textContent = money(spent);
   document.getElementById("remaining").textContent = money(remaining);
   document.getElementById("grand").textContent = money(grand);
-  document.getElementById("progress").textContent = `${Math.round((bought.length / (items.length || 1)) * 100)}% Complete`;
+  document.getElementById("progress").textContent = `${bought.length}/${items.length} bought`;
 
   // Render Need Grid
   const needGrid = document.getElementById("needGrid");
