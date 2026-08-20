@@ -1,0 +1,1558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Media Wall — Planning Hub</title>
+<style>
+:root {
+  --bg-gradient: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 60%, #080d1a 100%);
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --card-bg-hover: rgba(30, 41, 59, 0.9);
+  --card-bought-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(30, 41, 59, 0.8) 100%);
+  --accent: #818cf8;
+  --accent-glow: rgba(129, 140, 248, 0.25);
+  --green: #10b981;
+  --green-hover: #059669;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.08);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.top {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px 20px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+#progress {
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  color: var(--accent);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+nav {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px 16px;
+  display: flex;
+  gap: 10px;
+  overflow: auto;
+}
+
+nav button {
+  border: 1px solid var(--border-color);
+  background: rgba(30, 41, 59, 0.5);
+  color: var(--text-muted);
+  padding: 10px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+nav button:hover {
+  background: rgba(30, 41, 59, 0.9);
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+nav button.active {
+  background: var(--accent);
+  color: #0f172a;
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 24px 20px 80px;
+}
+
+.backup-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.reference-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 28px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.reference-header {
+  padding: 16px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reference-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reference-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding: 20px;
+  align-items: center;
+}
+
+@media(min-width:768px) {
+  .reference-content { grid-template-columns: 360px 1fr; }
+}
+
+.ref-img-wrap {
+  width: 100%;
+  max-height: 380px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+}
+
+.ref-img-wrap img {
+  width: 100%;
+  height: 100%;
+  max-height: 380px;
+  object-fit: cover;
+  padding: 0;
+}
+
+.ref-text h4 {
+  color: var(--text-main);
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.ref-text p {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.stat {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 18px;
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s;
+}
+
+.stat:hover { transform: translateY(-2px); }
+
+.stat span {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat b {
+  display: block;
+  font-size: 24px;
+  margin-top: 6px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.section { margin-top: 32px; }
+
+.section h2 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 16px;
+  letter-spacing: -0.3px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+
+.item {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 18px;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  position: relative;
+}
+
+.drag-handle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: grab;
+  z-index: 5;
+  transition: all 0.2s ease;
+  letter-spacing: 1px;
+}
+
+.drag-handle:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.item.dragging {
+  opacity: 0.35;
+  border: 2px dashed var(--accent);
+}
+
+.item.drag-over {
+  border-color: var(--accent);
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px rgba(129, 140, 248, 0.2);
+}
+
+.item:hover {
+  background: var(--card-bg-hover);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.item.bought {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: var(--card-bought-bg);
+}
+
+.item-thumb-box {
+  width: 100%;
+  aspect-ratio: 290 / 180;
+  background: #ffffff;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.item-thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  padding: 0;
+  transition: transform 0.3s ease;
+}
+
+.item-thumb-box:hover img { transform: scale(1.03); }
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  padding-right: 28px;
+}
+
+.name {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.qty {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+  gap: 8px;
+}
+
+button.action {
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+}
+
+button.action:hover { background: rgba(255, 255, 255, 0.15); }
+
+.buy {
+  background: var(--green) !important;
+  color: #042f1a !important;
+}
+
+.buy:hover { background: var(--green-hover) !important; }
+
+.undo {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-muted) !important;
+}
+
+.edit {
+  background: rgba(255, 255, 255, 0.06) !important;
+  font-size: 15px !important;
+  padding: 6px 10px !important;
+}
+
+.add-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 36px;
+  font-weight: 300;
+  transition: all 0.2s;
+}
+
+.add-card:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(129, 140, 248, 0.05);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+a:hover { text-decoration: underline; }
+
+.tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+  padding: 20px;
+}
+
+.modal.open { display: flex; }
+
+.modalbox {
+  width: min(460px, 100%);
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalbox h3 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.field { margin: 14px 0; }
+
+.field label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.field input, .field textarea, .field select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: rgba(30, 41, 59, 0.6);
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: var(--accent);
+}
+
+.modalbuttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.modalbuttons button {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+
+.save {
+  background: var(--green);
+  color: #042f1a;
+}
+
+.crop-container {
+  width: 100%;
+  aspect-ratio: 290 / 180;
+  background: #ffffff;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.crop-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.crop-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.crop-controls input[type="range"] { flex: 1; }
+
+.empty {
+  color: var(--text-muted);
+  padding: 32px;
+  background: var(--card-bg);
+  border: 1px dashed var(--border-color);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.tutorial-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  backdrop-filter: blur(8px);
+}
+
+.thumb-box {
+  width: 100%;
+  aspect-ratio: 290 / 180;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--border-color);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.thumb-box:hover img { transform: scale(1.03); }
+
+.thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  padding: 0;
+  transition: transform 0.3s ease;
+}
+
+.thumb-placeholder {
+  color: var(--text-muted);
+  font-size: 36px;
+}
+
+.tutorial-body {
+  padding: 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.delete-btn {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  padding: 6px 10px !important;
+  font-size: 15px !important;
+}
+
+.delete-btn:hover { background: rgba(239, 68, 68, 0.4) !important; }
+
+.notebook-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media(min-width: 900px) {
+  .notebook-container {
+    grid-template-columns: 340px 1fr;
+    align-items: start;
+  }
+}
+
+.quick-note-box {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 22px;
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 90px;
+}
+
+.quick-note-box h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.note-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.note-input-group input, .note-input-group textarea, .note-input-group select {
+  width: 100%;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+}
+
+.note-input-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.note-input-group input:focus, .note-input-group textarea:focus, .note-input-group select:focus {
+  border-color: var(--accent);
+}
+
+.add-note-btn {
+  background: var(--accent);
+  color: #0f172a;
+  border: 0;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.add-note-btn:hover { opacity: 0.9; }
+
+.notes-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notebook-entry {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent);
+  border-radius: 14px;
+  padding: 20px 24px;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.notebook-entry:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateX(2px);
+}
+
+.notebook-entry.cat-technique { border-left-color: #818cf8; }
+.notebook-entry.cat-dimensions { border-left-color: #38bdf8; }
+.notebook-entry.cat-material { border-left-color: #34d399; }
+.notebook-entry.cat-electrical { border-left-color: #fbbf24; }
+.notebook-entry.cat-reminder { border-left-color: #f43f5e; }
+
+.entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.entry-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.entry-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cat-technique .entry-badge { background: rgba(129, 140, 248, 0.15); color: #818cf8; }
+.cat-dimensions .entry-badge { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.cat-material .entry-badge { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.cat-electrical .entry-badge { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+.cat-reminder .entry-badge { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+
+.entry-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #cbd5e1;
+  white-space: pre-wrap;
+}
+
+.entry-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.tab-view { display: none; }
+.tab-view.active { display: block; }
+
+@media(max-width: 900px) {
+  .summary { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media(max-width: 600px) {
+  .summary { grid-template-columns: repeat(2, 1fr); }
+  .top { align-items: flex-start; }
+  .price { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div>
+      <h1>✨ Media Wall Tracker</h1>
+      <div class="sub">Tools, materials, notes & design reference</div>
+    </div>
+    <div id="progress"></div>
+  </div>
+  <nav>
+    <button class="active" data-tab="need">Need to Buy</button>
+    <button data-tab="bought">Bought ✓</button>
+    <button data-tab="tutorials">Tutorials 🎥</button>
+    <button data-tab="notes">Notes 📝</button>
+  </nav>
+</header>
+
+<!-- Edit Item Modal -->
+<div id="modal" class="modal">
+  <div class="modalbox">
+    <h3 id="modalTitle">Edit item</h3>
+    <div class="field"><label>Name</label><input id="editName"></div>
+    <div class="field"><label>Quantity</label><input id="editQty" type="number" min="0" step="1"></div>
+    <div class="field"><label>Price per item (£)</label><input id="editPrice" type="number" min="0" step="0.01"></div>
+    <div class="field"><label>Link (optional)</label><input id="editLink" type="text"></div>
+    <div class="field"><label>Note (optional)</label><input id="editNote" type="text"></div>
+    <div class="field">
+      <label>Item Thumbnail (File PNG/JPG or URL)</label>
+      <input id="editImgFile" type="file" accept="image/*" style="margin-bottom:8px">
+      <input id="editImgUrl" placeholder="Or paste image URL directly">
+      <button type="button" class="action edit" style="margin-top:8px; width:100%" onclick="triggerCropForItem()">✂️ Crop / Zoom Image</button>
+    </div>
+    <div class="modalbuttons">
+      <button class="cancel" onclick="closeModal()">Cancel</button>
+      <button class="save" onclick="saveItem()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Crop Modal -->
+<div id="cropperModal" class="modal" style="z-index: 50;">
+  <div class="modalbox" style="width: min(500px, 100%);">
+    <h3>✂️ Crop & Zoom Image</h3>
+    <p style="font-size: 12px; color: var(--text-muted); margin-top:-10px;">Drag image freely and zoom down to 0.1x. What you framed inside this box is exactly what displays on your card.</p>
+    <div class="crop-container" id="cropBox">
+      <canvas id="cropCanvas" class="crop-canvas"></canvas>
+    </div>
+    <div class="crop-controls">
+      <label style="font-size:12px; font-weight:bold;">Zoom:</label>
+      <input type="range" id="zoomRange" min="0.1" max="5" step="0.02" value="1">
+    </div>
+    <div class="modalbuttons">
+      <button class="cancel" onclick="closeCropper()">Cancel</button>
+      <button class="save" onclick="applyCrop()">Apply Crop</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Tutorial Modal -->
+<div id="tutModal" class="modal">
+  <div class="modalbox">
+    <h3 id="tutModalTitle">Add Tutorial</h3>
+    <div class="field"><label>Video Title</label><input id="tutTitle" placeholder="e.g. How to build stud frame"></div>
+    <div class="field"><label>Video Link</label><input id="tutLink" placeholder="https://youtube.com/watch?v=..."></div>
+    <div class="field"><label>Note (optional)</label><input id="tutNote" placeholder="e.g. Check timestamp 3:45 for TV mount height"></div>
+    <div class="field">
+      <label>Thumbnail (Image File or Image URL)</label>
+      <input id="tutImageFile" type="file" accept="image/*" style="margin-bottom:8px">
+      <input id="tutImageUrl" placeholder="Or paste image URL directly">
+    </div>
+    <div class="modalbuttons">
+      <button class="cancel" onclick="closeTutModal()">Cancel</button>
+      <button class="save" onclick="saveTutorial()">Save Tutorial</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Note Modal -->
+<div id="noteModal" class="modal">
+  <div class="modalbox">
+    <h3 id="noteModalTitle">Edit Note</h3>
+    <div class="field"><label>Title</label><input id="editNoteTitle"></div>
+    <div class="field"><label>Category</label>
+      <select id="editNoteCategory">
+        <option value="technique">Technique</option>
+        <option value="dimensions">Dimensions</option>
+        <option value="material">Material</option>
+        <option value="electrical">Electrical</option>
+        <option value="reminder">Reminder</option>
+      </select>
+    </div>
+    <div class="field"><label>Content</label><textarea id="editNoteContent" style="min-height:120px"></textarea></div>
+    <div class="modalbuttons">
+      <button class="cancel" onclick="closeNoteModal()">Cancel</button>
+      <button class="save" onclick="saveEditNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="backup-toolbar">
+    <button class="action" onclick="exportData()">💾 Export Backup</button>
+    <button class="action" onclick="triggerImport()">📂 Import Backup</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+
+  <div id="shoppingView" class="tab-view active">
+    
+    <div class="reference-card">
+      <div class="reference-header">
+        <h3>🖼️ Project Reference Goal</h3>
+        <button class="action edit" onclick="triggerRefUpload()">Change Photo 📷</button>
+        <input type="file" id="refImageInput" accept="image/*" style="display:none" onchange="uploadRefImage(event)">
+      </div>
+      <div class="reference-content">
+        <div class="ref-img-wrap">
+          <img id="referenceImgDisplay" src="" alt="Reference Media Wall Design">
+        </div>
+        <div class="ref-text">
+          <h4>Media Wall & Fireplace Concept</h4>
+          <p>Main Focus: Recessed TV arrangement, wide panoramic electric fireplace, illuminated shelf alcoves, and integrated desk integration.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="stat"><span>Total Items</span><b id="count">0</b></div>
+      <div class="stat"><span>Items Bought</span><b id="boughtCount">0</b></div>
+      <div class="stat"><span>Spent</span><b id="spent">£0</b></div>
+      <div class="stat"><span>Remaining</span><b id="remaining">£0</b></div>
+      <div class="stat"><span>Grand Total</span><b id="grand">£0</b></div>
+    </div>
+
+    <section id="needSection" class="section">
+      <h2>🛒 Need to Buy</h2>
+      <div id="needGrid" class="grid"></div>
+    </section>
+
+    <section id="boughtSection" class="section">
+      <h2>✅ Bought</h2>
+      <div id="boughtGrid" class="grid"></div>
+    </section>
+  </div>
+
+  <div id="tutorialsView" class="tab-view">
+    <section class="section">
+      <h2>🎥 Video Guides & Inspiration</h2>
+      <div id="tutorialsGrid" class="grid"></div>
+    </section>
+  </div>
+
+  <div id="notesView" class="tab-view">
+    <section class="section">
+      <h2>📝 Project Notebook & Research</h2>
+      <div class="notebook-container">
+        
+        <div class="quick-note-box">
+          <h3>✍️ Quick Add Note</h3>
+          <div class="note-input-group">
+            <input id="quickNoteTitle" placeholder="Topic or Header...">
+            <select id="quickNoteCategory">
+              <option value="technique">Technique</option>
+              <option value="dimensions">Dimensions</option>
+              <option value="material">Material</option>
+              <option value="electrical">Electrical</option>
+              <option value="reminder">Reminder</option>
+            </select>
+            <textarea id="quickNoteContent" placeholder="Write down useful details, tips, measurements or reminders..."></textarea>
+            <button class="add-note-btn" onclick="addQuickNote()">+ Save to Notebook</button>
+          </div>
+        </div>
+
+        <div id="notesStream" class="notes-stream"></div>
+
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+const initialItems = [
+{name:"Mitre Saw",qty:1,price:134,link:"https://amzn.eu/d/047xyF6c"},
+{name:"Impact Driver",qty:1,price:40,link:"https://amzn.eu/d/03KsYcHS"},
+{name:"Electric Nail Gun",qty:1,price:42.21,link:"https://amzn.eu/d/0hkDbgfn"},
+{name:"TV wall fixings",qty:1,price:9.49,link:"https://amzn.eu/d/0foXFMbA",note:"maybe change"},
+{name:"Concrete screws",qty:1,price:25.96,link:"https://www.screwfix.com/p/easydrive-tx-countersunk-thread-forming-concrete-screws-7-5mm-x-120mm-100-pack/9008h",note:"maybe change"},
+{name:"Circular Saw",qty:1,price:89.99,link:"https://amzn.eu/d/0dBe86Vy",note:"maybe change"},
+{name:"Wicks 38x63x2400mm",qty:20,price:3.40,source:"Wicks"},
+{name:"Guide Rail",qty:1,price:49,link:"https://amzn.eu/d/03OL5A7c"},
+{name:"Try Square",qty:1,price:10.79,link:"https://amzn.eu/d/0axfgCEV"},
+{name:"Lazer Level",qty:1,price:30.59,link:"https://amzn.eu/d/01W3jk4L",bought:true},
+{name:"80 inch TV swivel bracket",qty:1,price:27.98,link:"https://amzn.eu/d/071KBjcb"},
+{name:"Moisture resistant MDF",qty:3,price:23,source:"B&Q"},
+{name:"Clamps",qty:2,price:5,link:"https://amzn.eu/d/0bWurSJr",bought:true},
+{name:"Fireplace",qty:1,price:400,link:"https://amzn.eu/d/0hlKahGl"},
+{name:"Bose Soundbar",qty:1,price:300,source:"Bose"},
+{name:"Downlights",qty:1,price:59,link:"https://amzn.eu/d/0iAGz1Oa",note:"SAVE FOR NOW"},
+{name:"Track Saw???",qty:1,price:89.99,source:"Screwfix"},
+{name:"Carpenter pencils",qty:1,price:0},
+{name:"10(?) plug extension lead",qty:1,price:0},
+{name:"Filler",qty:1,price:0},
+{name:"FC1 filler",qty:1,price:4.69,source:"Tool Station"}
+];
+
+const key="mediaWallTracker_v2";
+const tutKey="mediaWallTutorials_v1";
+const refKey="mediaWallRefImage_v1";
+const notesKey="mediaWallNotes_v2";
+
+let items=JSON.parse(localStorage.getItem(key)||"null") || initialItems;
+let tutorials=JSON.parse(localStorage.getItem(tutKey)||"null") || [];
+let notes=JSON.parse(localStorage.getItem(notesKey)||"null") || [
+  {title:"Stud Wall Depth & Cable Clearance", category:"dimensions", content:"Leave at least 100mm gap behind TV recessed box to fit TV bracket and plug connectors comfortably."},
+  {title:"MDF Edges & Priming", category:"material", content:"MDF cut edges soak up paint quickly. Prime edges with MR MDF primer or wood filler skim before sanding for clean edges."},
+  {title:"Socket Placement", category:"electrical", content:"Position 4-gang or 6-gang extension lead inside lower fireplace cavity behind access panel."}
+];
+
+function money(n){return "£"+n.toFixed(2).replace(".00","")}
+function save(){localStorage.setItem(key,JSON.stringify(items))}
+function saveTut(){localStorage.setItem(tutKey,JSON.stringify(tutorials))}
+function saveNotes(){localStorage.setItem(notesKey,JSON.stringify(notes))}
+
+function exportData() {
+  const backup = {
+    items: items,
+    tutorials: tutorials,
+    notes: notes,
+    referenceImage: localStorage.getItem(refKey) || ""
+  };
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", "media-wall-backup.json");
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+function triggerImport() {
+  document.getElementById("importFile").click();
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const backup = JSON.parse(evt.target.result);
+      if (backup.items) {
+        items = backup.items;
+        save();
+      }
+      if (backup.tutorials) {
+        tutorials = backup.tutorials;
+        saveTut();
+      }
+      if (backup.notes) {
+        notes = backup.notes;
+        saveNotes();
+      }
+      if (backup.referenceImage) {
+        localStorage.setItem(refKey, backup.referenceImage);
+      }
+      render();
+      alert("🎉 Backup imported successfully!");
+    } catch (err) {
+      alert("❌ Error reading file. Make sure it's a valid backup JSON.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+let cropState = {
+  img: null,
+  x: 0,
+  y: 0,
+  baseScale: 1,
+  userZoom: 1,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  callback: null
+};
+
+function openCropper(imageSrc, onCroppedCallback) {
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    cropState.img = img;
+    cropState.userZoom = 1;
+    cropState.x = 0;
+    cropState.y = 0;
+    cropState.callback = onCroppedCallback;
+    
+    const zoomSlider = document.getElementById("zoomRange");
+    zoomSlider.min = "0.1";
+    zoomSlider.max = "5";
+    zoomSlider.step = "0.02";
+    zoomSlider.value = "1";
+    
+    document.getElementById("cropperModal").classList.add("open");
+    drawCropCanvas();
+  };
+  img.src = imageSrc;
+}
+
+function closeCropper() {
+  document.getElementById("cropperModal").classList.remove("open");
+}
+
+function drawCropCanvas() {
+  const canvas = document.getElementById("cropCanvas");
+  const ctx = canvas.getContext("2d");
+  const box = document.getElementById("cropBox");
+  
+  canvas.width = box.clientWidth || 440;
+  canvas.height = Math.round(canvas.width * (180 / 290));
+
+  if (!cropState.img) return;
+
+  const scaleX = canvas.width / cropState.img.width;
+  const scaleY = canvas.height / cropState.img.height;
+  cropState.baseScale = Math.min(scaleX, scaleY);
+
+  const effectiveScale = cropState.baseScale * cropState.userZoom;
+
+  const w = cropState.img.width * effectiveScale;
+  const h = cropState.img.height * effectiveScale;
+
+  const drawX = (canvas.width - w) / 2 + cropState.x;
+  const drawY = (canvas.height - h) / 2 + cropState.y;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(cropState.img, drawX, drawY, w, h);
+}
+
+function applyCrop() {
+  const canvas = document.getElementById("cropCanvas");
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+  if (cropState.callback) cropState.callback(dataUrl);
+  closeCropper();
+}
+
+const cropBox = document.getElementById("cropBox");
+const zoomRange = document.getElementById("zoomRange");
+
+zoomRange.addEventListener("input", (e) => {
+  cropState.userZoom = parseFloat(e.target.value);
+  drawCropCanvas();
+});
+
+cropBox.addEventListener("mousedown", (e) => {
+  cropState.isDragging = true;
+  cropState.startX = e.clientX - cropState.x;
+  cropState.startY = e.clientY - cropState.y;
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (!cropState.isDragging) return;
+  cropState.x = e.clientX - cropState.startX;
+  cropState.y = e.clientY - cropState.startY;
+  drawCropCanvas();
+});
+
+window.addEventListener("mouseup", () => { cropState.isDragging = false; });
+
+cropBox.addEventListener("touchstart", (e) => {
+  if(e.touches.length === 1) {
+    cropState.isDragging = true;
+    cropState.startX = e.touches[0].clientX - cropState.x;
+    cropState.startY = e.touches[0].clientY - cropState.y;
+  }
+});
+
+window.addEventListener("touchmove", (e) => {
+  if (!cropState.isDragging || e.touches.length !== 1) return;
+  cropState.x = e.touches[0].clientX - cropState.x;
+  cropState.y = e.touches[0].clientY - cropState.startY;
+  drawCropCanvas();
+});
+
+window.addEventListener("touchend", () => { cropState.isDragging = false; });
+
+document.getElementById("editImgFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(file) {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      openCropper(evt.target.result, (croppedBase64) => {
+        document.getElementById("editImgUrl").value = croppedBase64;
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+function triggerCropForItem() {
+  const url = document.getElementById("editImgUrl").value.trim();
+  if(!url) { alert("Please provide an image file or image URL first to crop."); return; }
+  openCropper(url, (croppedBase64) => {
+    document.getElementById("editImgUrl").value = croppedBase64;
+  });
+}
+
+function initRefImage(){
+  const savedRef = localStorage.getItem(refKey);
+  if(savedRef){
+    document.getElementById("referenceImgDisplay").src = savedRef;
+  }
+}
+
+function triggerRefUpload(){
+  document.getElementById("refImageInput").click();
+}
+
+function uploadRefImage(e){
+  const file = e.target.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(evt){
+      openCropper(evt.target.result, (croppedBase64) => {
+        document.getElementById("referenceImgDisplay").src = croppedBase64;
+        localStorage.setItem(refKey, croppedBase64);
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function render(){
+ const need = items.filter(x => !x.bought);
+ const bought = items.filter(x => x.bought);
+
+ document.getElementById("count").textContent = items.length;
+ document.getElementById("boughtCount").textContent = bought.length;
+
+ const spent = bought.reduce((s, x) => s + x.price * x.qty, 0);
+ const remaining = need.reduce((s, x) => s + x.price * x.qty, 0);
+ const total = items.reduce((s, x) => s + x.price * x.qty, 0);
+
+ document.getElementById("spent").textContent = money(spent);
+ document.getElementById("remaining").textContent = money(remaining);
+ document.getElementById("grand").textContent = money(total);
+ document.getElementById("progress").textContent = `${bought.length}/${items.length} bought`;
+
+ draw("needGrid", need, false); 
+ draw("boughtGrid", bought, true);
+ renderTutorials();
+ renderNotes();
+ initRefImage();
+}
+
+let draggedGlobalIndex = null;
+
+function draw(id,list,isBought){
+ const el=document.getElementById(id);
+ if(!list.length && isBought){el.innerHTML='<div class="empty">Nothing here yet 👀</div>';return}
+ el.innerHTML=list.map((x)=>{
+   const idx=items.indexOf(x), total=x.price*x.qty;
+   const linkAttr = x.link ? `href="${escapeHtml(x.link)}" target="_blank" rel="noopener"` : (x.img ? `href="${escapeHtml(x.img)}" target="_blank" rel="noopener"` : '');
+   const thumbTag = (x.link || x.img) ? 'a' : 'div';
+
+   return `<article class="item ${x.bought?'bought':''}" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, ${idx})">
+     <div class="drag-handle" draggable="true" title="Drag to reorder" ondragstart="handleDragStart(event, ${idx})" ondragend="handleDragEnd(event)">⋮⋮</div>
+     ${x.img ? `<${thumbTag} ${linkAttr} class="item-thumb-box" title="Click to open item link/image">
+       <img src="${escapeHtml(x.img)}" alt="${escapeHtml(x.name)}">
+     </${thumbTag}>` : ''}
+     <div class="row">
+       <div><div class="name">${x.bought?'✓ ':''}${escapeHtml(x.name)}</div><div class="qty">Quantity: ${x.qty}${x.source?' · '+escapeHtml(x.source):''}</div></div>
+       <div style="display:flex;align-items:center;gap:7px">
+         <div class="price">${money(total)}</div>
+         <button class="action edit" title="Edit item" onclick="openEdit(${idx})">✎</button>
+         <button class="action delete-btn" title="Delete item" onclick="deleteItem(${idx})">🗑</button>
+       </div>
+     </div>
+     <div class="meta">
+       <div>${x.note?`<span class="tag">${escapeHtml(x.note)}</span>`:''} ${x.link?`<a href="${x.link}" target="_blank" rel="noopener">Open link ↗</a>`:''}</div>
+       <button class="action ${x.bought?'undo':'buy'}" onclick="toggle(${idx})">${x.bought?'↩ Undo':'✓ Bought'}</button>
+     </div>
+   </article>`
+ }).join("") + (!isBought ? `<article class="item add-card" title="Add new item" onclick="openAdd()">+</article>` : "");
+}
+
+function handleDragStart(e, idx) {
+  draggedGlobalIndex = idx;
+  e.dataTransfer.effectAllowed = "move";
+  const card = e.target.closest(".item");
+  setTimeout(() => {
+    card.classList.add("dragging");
+  }, 0);
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+  const card = e.target.closest(".item");
+  if (card && !card.classList.contains("add-card")) {
+    card.classList.add("drag-over");
+  }
+}
+
+function handleDragLeave(e) {
+  const card = e.target.closest(".item");
+  if (card) {
+    card.classList.remove("drag-over");
+  }
+}
+
+function handleDrop(e, targetIdx) {
+  e.preventDefault();
+  const card = e.target.closest(".item");
+  if (card) card.classList.remove("drag-over");
+
+  if (draggedGlobalIndex === null || draggedGlobalIndex === targetIdx) return;
+
+  const movedItem = items.splice(draggedGlobalIndex, 1)[0];
+  items.splice(targetIdx, 0, movedItem);
+  save();
+  render();
+}
+
+function handleDragEnd(e) {
+  draggedGlobalIndex = null;
+  document.querySelectorAll(".item").forEach(el => {
+    el.classList.remove("dragging");
+    el.classList.remove("drag-over");
+  });
+}
+
+function deleteItem(idx) {
+  if (confirm("Are you sure you want to delete this item?")) {
+    items.splice(idx, 1);
+    save();
+    render();
+  }
+}
+
+function renderTutorials(){
+ const el=document.getElementById("tutorialsGrid");
+ el.innerHTML=tutorials.map((t, idx)=>{
+   const linkAttr = t.link ? `href="${escapeHtml(t.link)}" target="_blank" rel="noopener"` : '';
+   const thumbTag = t.link ? 'a' : 'div';
+   return `<article class="tutorial-card">
+     <${thumbTag} ${linkAttr} class="thumb-box">
+       ${t.thumb ? `<img src="${escapeHtml(t.thumb)}" alt="Thumbnail">` : `<span class="thumb-placeholder">🎬</span>`}
+     </${thumbTag}>
+     <div class="tutorial-body">
+       <div>
+         <div class="name" style="margin-bottom:6px">${escapeHtml(t.title)}</div>
+         ${t.note ? `<div style="margin-bottom:8px"><span class="tag">${escapeHtml(t.note)}</span></div>` : ''}
+       </div>
+       <div class="meta">
+         <div>${t.link ? `<a href="${escapeHtml(t.link)}" target="_blank" rel="noopener">Watch Video ↗</a>` : ''}</div>
+         <div style="display:flex;gap:6px">
+           <button class="action edit" title="Edit tutorial" onclick="openEditTutorial(${idx})">✎</button>
+           <button class="action delete-btn" title="Delete tutorial" onclick="deleteTutorial(${idx})">🗑</button>
+         </div>
+       </div>
+     </div>
+   </article>`
+ }).join("") + `<article class="item add-card" title="Add new tutorial" onclick="openAddTutorial()">+</article>`;
+}
+
+function renderNotes(){
+ const stream = document.getElementById("notesStream");
+ if(!notes.length){
+   stream.innerHTML = '<div class="empty">No notes written yet. Use the quick box on the left to jot down thoughts! ✍️</div>';
+   return;
+ }
+ stream.innerHTML = notes.map((n, idx) => {
+   const cat = n.category || 'technique';
+   return `<article class="notebook-entry cat-${cat}">
+     <div class="entry-header">
+       <div class="entry-title">${escapeHtml(n.title)}</div>
+       <span class="entry-badge">${cat}</span>
+     </div>
+     <div class="entry-body">${escapeHtml(n.content)}</div>
+     <div class="entry-footer">
+       <button class="action edit" onclick="openEditNote(${idx})">✎ Edit</button>
+       <button class="action delete-btn" onclick="deleteNote(${idx})">🗑 Delete</button>
+     </div>
+   </article>`;
+ }).join("");
+}
+
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+
+let editingIndex=null;
+function openEdit(i){
+ editingIndex=i;
+ const x=items[i];
+ document.getElementById("modalTitle").textContent="Edit item";
+ document.getElementById("editName").value=x.name;
+ document.getElementById("editQty").value=x.qty;
+ document.getElementById("editPrice").value=x.price;
+ document.getElementById("editLink").value=x.link||"";
+ document.getElementById("editNote").value=x.note||"";
+ document.getElementById("editImgUrl").value=(x.img && !x.img.startsWith("data:")) ? x.img : "";
+ document.getElementById("editImgFile").value="";
+ document.getElementById("modal").classList.add("open");
+ document.getElementById("editName").focus();
+}
+
+function openAdd(){
+ editingIndex=null;
+ document.getElementById("modalTitle").textContent="Add new item";
+ document.getElementById("editName").value="";
+ document.getElementById("editQty").value=1;
+ document.getElementById("editPrice").value=0;
+ document.getElementById("editLink").value="";
+ document.getElementById("editNote").value="";
+ document.getElementById("editImgUrl").value="";
+ document.getElementById("editImgFile").value="";
+ document.getElementById("modal").classList.add("open");
+ document.getElementById("editName").focus();
+}
+
+function closeModal(){document.getElementById("modal").classList.remove("open")}
+
+function saveItem(){
+ const name=document.getElementById("editName").value.trim();
+ if(!name){alert("Give the item a name first.");return}
+ const qty=Math.max(0,Number(document.getElementById("editQty").value)||0);
+ const price=Math.max(0,Number(document.getElementById("editPrice").value)||0);
+ const link=document.getElementById("editLink").value.trim();
+ const note=document.getElementById("editNote").value.trim();
+ const urlImg=document.getElementById("editImgUrl").value.trim();
+
+ if(editingIndex===null) {
+   items.push({name,qty,price,link,note,img:urlImg,bought:false});
+ } else {
+   const existingImg = items[editingIndex].img;
+   const finalImg = urlImg || existingImg;
+   Object.assign(items[editingIndex],{name,qty,price,link,note,img:finalImg});
+ }
+ save(); render(); closeModal();
+}
+
+let editingTutIndex=null;
+function openAddTutorial(){
+ editingTutIndex=null;
+ document.getElementById("tutModalTitle").textContent="Add Tutorial";
+ document.getElementById("tutTitle").value="";
+ document.getElementById("tutLink").value="";
+ document.getElementById("tutNote").value="";
+ document.getElementById("tutImageUrl").value="";
+ document.getElementById("tutImageFile").value="";
+ document.getElementById("tutModal").classList.add("open");
+ document.getElementById("tutTitle").focus();
+}
+
+function openEditTutorial(idx){
+ editingTutIndex=idx;
+ const t=tutorials[idx];
+ document.getElementById("tutModalTitle").textContent="Edit Tutorial";
+ document.getElementById("tutTitle").value=t.title||"";
+ document.getElementById("tutLink").value=t.link||"";
+ document.getElementById("tutNote").value=t.note||"";
+ document.getElementById("tutImageUrl").value=(t.thumb && !t.thumb.startsWith("data:")) ? t.thumb : "";
+ document.getElementById("tutImageFile").value="";
+ document.getElementById("tutModal").classList.add("open");
+ document.getElementById("tutTitle").focus();
+}
+
+function closeTutModal(){document.getElementById("tutModal").classList.remove("open")}
+
+function saveTutorial(){
+ const title=document.getElementById("tutTitle").value.trim();
+ if(!title){alert("Please provide a title for the video.");return}
+ const link=document.getElementById("tutLink").value.trim();
+ const note=document.getElementById("tutNote").value.trim();
+ const urlThumb=document.getElementById("tutImageUrl").value.trim();
+
+ if(editingTutIndex === null){
+   tutorials.push({title, link, note, thumb: urlThumb});
+ } else {
+   const existingThumb = tutorials[editingTutIndex].thumb;
+   const finalThumb = urlThumb || existingThumb;
+   tutorials[editingTutIndex] = {title, link, note, thumb: finalThumb};
+ }
+ saveTut(); renderTutorials(); closeTutModal();
+}
+
+function deleteTutorial(idx){
+ tutorials.splice(idx,1);
+ saveTut();renderTutorials();
+}
+
+let editingNoteIdx=null;
+
+function addQuickNote(){
+ const title = document.getElementById("quickNoteTitle").value.trim();
+ const content = document.getElementById("quickNoteContent").value.trim();
+ const category = document.getElementById("quickNoteCategory").value;
+
+ if(!title && !content){ alert("Please enter a note header or content."); return; }
+
+ notes.unshift({title: title || "Untitled Note", content, category});
+ saveNotes();
+ renderNotes();
+
+ document.getElementById("quickNoteTitle").value = "";
+ document.getElementById("quickNoteContent").value = "";
+}
+
+function openEditNote(idx){
+ editingNoteIdx = idx;
+ const n = notes[idx];
+ document.getElementById("editNoteTitle").value = n.title || "";
+ document.getElementById("editNoteCategory").value = n.category || "technique";
+ document.getElementById("editNoteContent").value = n.content || "";
+ document.getElementById("noteModal").classList.add("open");
+}
+
+function closeNoteModal(){ document.getElementById("noteModal").classList.remove("open"); }
+
+function saveEditNote(){
+ const title = document.getElementById("editNoteTitle").value.trim();
+ const content = document.getElementById("editNoteContent").value.trim();
+ const category = document.getElementById("editNoteCategory").value;
+
+ if(editingNoteIdx !== null){
+   notes[editingNoteIdx] = {title: title || "Untitled Note", content, category};
+   saveNotes();
+   renderNotes();
+ }
+ closeNoteModal();
+}
+
+function deleteNote(idx){
+ notes.splice(idx, 1);
+ saveNotes();
+ renderNotes();
+}
+
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+document.getElementById("tutModal").addEventListener("click",e=>{if(e.target.id==="tutModal")closeTutModal()});
+document.getElementById("noteModal").addEventListener("click",e=>{if(e.target.id==="noteModal")closeNoteModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeTutModal();closeNoteModal();closeCropper()}});
+
+function toggle(i){items[i].bought=!items[i].bought;save();render()}
+
+document.querySelectorAll("nav button").forEach(btn=>{
+ btn.onclick=()=>{
+   document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+   btn.classList.add("active");
+   const tab = btn.dataset.tab;
+   
+   document.getElementById("shoppingView").classList.remove("active");
+   document.getElementById("tutorialsView").classList.remove("active");
+   document.getElementById("notesView").classList.remove("active");
+
+   if(tab === "tutorials") {
+     document.getElementById("tutorialsView").classList.add("active");
+   } else if(tab === "notes") {
+     document.getElementById("notesView").classList.add("active");
+   } else {
+     document.getElementById("shoppingView").classList.add("active");
+     if(tab==="bought") document.getElementById("boughtSection").scrollIntoView({behavior:"smooth",block:"start"});
+     else document.getElementById("needSection").scrollIntoView({behavior:"smooth",block:"start"});
+   }
+ }
+});
+
+render();
+</script>
+</body>
+</html>
