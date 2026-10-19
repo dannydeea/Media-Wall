@@ -12,10 +12,13 @@
   --card-bg: rgba(30, 41, 59, 0.7);
   --card-bg-hover: rgba(30, 41, 59, 0.9);
   --card-bought-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(30, 41, 59, 0.8) 100%);
+  --card-refunded-bg: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(30, 41, 59, 0.8) 100%);
   --accent: #818cf8;
   --accent-glow: rgba(129, 140, 248, 0.25);
   --green: #10b981;
   --green-hover: #059669;
+  --red: #ef4444;
+  --red-hover: #dc2626;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border-color: rgba(255, 255, 255, 0.08);
@@ -257,7 +260,7 @@ main {
 
 .summary {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px;
   margin-bottom: 32px;
 }
@@ -370,6 +373,11 @@ main {
   background: var(--card-bought-bg);
 }
 
+.item.refunded {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: var(--card-refunded-bg);
+}
+
 .item-thumb-box {
   width: 100%;
   aspect-ratio: 290 / 180;
@@ -383,6 +391,7 @@ main {
   border: 1px solid var(--border-color);
   text-decoration: none;
   cursor: pointer;
+  position: relative;
 }
 
 .item-thumb-box img {
@@ -394,6 +403,23 @@ main {
 }
 
 .item-thumb-box:hover img { transform: scale(1.03); }
+
+/* Overlaid Red Refund Badge on Thumbnail */
+.image-refund-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--red);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 3;
+}
 
 .row {
   display: flex;
@@ -422,26 +448,47 @@ main {
   white-space: nowrap;
 }
 
+.unit-price {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+  text-align: right;
+}
+
 .meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid var(--border-color);
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: flex-end;
 }
 
 button.action {
   border: 0;
   border-radius: 10px;
-  padding: 9px 14px;
+  padding: 8px 12px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   transition: all 0.2s;
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 button.action:hover { background: rgba(255, 255, 255, 0.15); }
@@ -453,6 +500,54 @@ button.action:hover { background: rgba(255, 255, 255, 0.15); }
 
 .buy:hover { background: var(--green-hover) !important; }
 
+/* Refund Split-Style Button: Dynamic green default, switches to red when refunded */
+.refund-split-btn {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.refund-split-btn.is-refunded {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.refund-split-btn button {
+  background: transparent;
+  border: 0;
+  color: #10b981;
+  padding: 8px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.refund-split-btn.is-refunded button {
+  color: #ef4444;
+}
+
+.refund-split-btn button:hover {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+.refund-split-btn.is-refunded button:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.refund-split-btn .gear-btn {
+  border-left: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 8px 8px;
+}
+
+.refund-split-btn.is-refunded .gear-btn {
+  border-left: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 .undo {
   background: rgba(255, 255, 255, 0.1) !important;
   color: var(--text-muted) !important;
@@ -460,8 +555,7 @@ button.action:hover { background: rgba(255, 255, 255, 0.15); }
 
 .edit {
   background: rgba(255, 255, 255, 0.06) !important;
-  font-size: 15px !important;
-  padding: 6px 10px !important;
+  padding: 8px 10px !important;
 }
 
 .add-card {
@@ -484,15 +578,6 @@ button.action:hover { background: rgba(255, 255, 255, 0.15); }
   color: var(--accent);
   background: rgba(129, 140, 248, 0.05);
 }
-
-a {
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-a:hover { text-decoration: underline; }
 
 .tag {
   font-size: 11px;
@@ -744,8 +829,8 @@ a:hover { text-decoration: underline; }
   background: rgba(239, 68, 68, 0.2) !important;
   color: #ef4444 !important;
   border: 1px solid rgba(239, 68, 68, 0.3) !important;
-  padding: 6px 10px !important;
-  font-size: 15px !important;
+  padding: 8px 10px !important;
+  font-size: 13px !important;
 }
 
 .delete-btn:hover { background: rgba(239, 68, 68, 0.4) !important; }
@@ -933,14 +1018,59 @@ body.guest .quick-note-box:hover::after {
 .tab-view { display: none; }
 .tab-view.active { display: block; }
 
+/* Styling for the auto-updating dropdown list */
+.bought-list-dropdown {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-top: 32px;
+  backdrop-filter: blur(8px);
+}
+
+.bought-list-dropdown summary {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-main);
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bought-list-dropdown summary::-webkit-details-marker {
+  color: var(--accent);
+}
+
+.bought-list-content {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+}
+
+.bought-list-content ol {
+  margin: 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bought-list-content li {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
 body.guest .admin-only { display: none !important; }
 
 @media(max-width: 900px) {
-  .summary { grid-template-columns: repeat(3, 1fr); }
+  .summary { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media(max-width: 600px) {
-  .summary { grid-template-columns: repeat(2, 1fr); }
+  .summary { grid-template-columns: 1fr; }
   .top { align-items: flex-start; }
   .price { font-size: 16px; }
 }
@@ -998,6 +1128,20 @@ body.guest .admin-only { display: none !important; }
     <div class="modalbuttons">
       <button class="cancel" onclick="closeModal()">Cancel</button>
       <button class="save" onclick="saveItem()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Refund Modal for Partial/Custom Refunds -->
+<div id="refundModal" class="modal">
+  <div class="modalbox" style="width: min(380px, 100%);">
+    <h3>Set Refund Details</h3>
+    <p style="font-size:13px; color:var(--text-muted); margin-top:-10px;">Specify how much was refunded or clear refund details.</p>
+    <div class="field"><label>Refunded Amount (£ total)</label><input id="refundAmtInput" type="number" min="0" step="0.01" placeholder="e.g. 15.00"></div>
+    <div class="modalbuttons">
+      <button class="cancel" onclick="closeRefundModal()">Cancel</button>
+      <button class="action undo" onclick="clearItemRefund()" style="background:rgba(239,68,68,0.2)!important; color:#ef4444!important;">Remove Refund</button>
+      <button class="save" onclick="saveItemRefund()">Save Refund</button>
     </div>
   </div>
 </div>
@@ -1101,10 +1245,13 @@ body.guest .admin-only { display: none !important; }
       </div>
     </div>
 
+    <!-- Summary Stats Layout including Red Refund & Net stats -->
     <div class="summary">
       <div class="stat"><span>Total Items</span><b id="count">0</b></div>
       <div class="stat"><span>Items Bought</span><b id="boughtCount">0</b></div>
-      <div class="stat"><span>Spent</span><b id="spent">£0</b></div>
+      <div class="stat"><span>Total Spent</span><b id="spent">£0</b></div>
+      <div class="stat"><span>Total Refunded</span><b id="refundedStat" style="color:var(--red)">£0</b></div>
+      <div class="stat"><span>Net Spent</span><b id="netSpent">£0</b></div>
       <div class="stat"><span>Remaining</span><b id="remaining">£0</b></div>
       <div class="stat"><span>Grand Total</span><b id="grand">£0</b></div>
     </div>
@@ -1117,6 +1264,14 @@ body.guest .admin-only { display: none !important; }
     <section id="boughtSection" class="section">
       <h2>Bought</h2>
       <div id="boughtGrid" class="grid"></div>
+      
+      <!-- Auto-updating plain text dropdown list of bought items -->
+      <details class="bought-list-dropdown">
+        <summary>📋 View Bought Items List (<span id="boughtDropdownCount">0</span>)</summary>
+        <div class="bought-list-content">
+          <ol id="boughtPlainTextList"></ol>
+        </div>
+      </details>
     </section>
   </div>
 
@@ -1372,15 +1527,14 @@ lightboxBox.addEventListener("wheel", (e) => {
   e.preventDefault();
   const zoomFactor = 1.15;
   if (e.deltaY < 0) {
-    lbZoom = Math.min(lbZoom * zoomFactor, 10); // Max zoom 10x
+    lbZoom = Math.min(lbZoom * zoomFactor, 10);
   } else {
-    lbZoom = Math.max(lbZoom / zoomFactor, 1); // Min zoom 1x (initial fit)
-    if (lbZoom === 1) { lbPanX = 0; lbPanY = 0; } // Reset pan if fully zoomed out
+    lbZoom = Math.max(lbZoom / zoomFactor, 1);
+    if (lbZoom === 1) { lbPanX = 0; lbPanY = 0; }
   }
   updateLightboxTransform();
 }, { passive: false });
 
-// Lightbox Mouse Drag Pan
 lightboxBox.addEventListener("mousedown", (e) => {
   if (lbZoom > 1) {
     lbIsDragging = true;
@@ -1397,28 +1551,6 @@ window.addEventListener("mousemove", (e) => {
 });
 
 window.addEventListener("mouseup", () => {
-  lbIsDragging = false;
-});
-
-// Touch support for pinch/pan on mobile
-let touchStartDist = 0;
-lightboxBox.addEventListener("touchstart", (e) => {
-  if (e.touches.length === 1 && lbZoom > 1) {
-    lbIsDragging = true;
-    lbStartX = e.touches[0].clientX - lbPanX;
-    lbStartY = e.touches[0].clientY - lbPanY;
-  }
-});
-
-lightboxBox.addEventListener("touchmove", (e) => {
-  if (lbIsDragging && e.touches.length === 1) {
-    lbPanX = e.touches[0].clientX - lbPanX;
-    lbPanY = e.touches[0].clientY - lbStartY;
-    updateLightboxTransform();
-  }
-});
-
-lightboxBox.addEventListener("touchend", () => {
   lbIsDragging = false;
 });
 
@@ -1516,23 +1648,6 @@ window.addEventListener("mousemove", (e) => {
 });
 
 window.addEventListener("mouseup", () => { cropState.isDragging = false; });
-
-cropBox.addEventListener("touchstart", (e) => {
-  if(e.touches.length === 1) {
-    cropState.isDragging = true;
-    cropState.startX = e.touches[0].clientX - cropState.x;
-    cropState.startY = e.touches[0].clientY - cropState.y;
-  }
-});
-
-window.addEventListener("touchmove", (e) => {
-  if (!cropState.isDragging || e.touches.length !== 1) return;
-  cropState.x = e.touches[0].clientX - cropState.x;
-  cropState.y = e.touches[0].clientY - cropState.y;
-  drawCropCanvas();
-});
-
-window.addEventListener("touchend", () => { cropState.isDragging = false; });
 
 document.getElementById("editImgFile").addEventListener("change", (e) => {
   const file = e.target.files[0];
@@ -1650,8 +1765,10 @@ function saveItem() {
   const itemData = { name, qty, price, link, note, img };
   if (editingIndex !== null) {
     itemData.bought = items[editingIndex].bought;
+    itemData.refundedAmount = items[editingIndex].refundedAmount || 0;
     items[editingIndex] = itemData;
   } else {
+    itemData.refundedAmount = 0;
     items.push(itemData);
   }
 
@@ -1663,7 +1780,65 @@ function saveItem() {
 function toggleBuy(index) {
   if (!currentUser) return;
   items[index].bought = !items[index].bought;
+  if (!items[index].bought) {
+    items[index].refundedAmount = 0; // reset refund if unbought
+  }
   save();
+  render();
+}
+
+// Full Refund Action (Instant)
+function toggleInstantRefund(index) {
+  if (!currentUser) return;
+  const item = items[index];
+  const maxTotal = (item.price || 0) * (item.qty || 1);
+  
+  if (item.refundedAmount && item.refundedAmount > 0) {
+    item.refundedAmount = 0; // Toggle off
+  } else {
+    item.refundedAmount = maxTotal; // Full refund
+  }
+  save();
+  render();
+}
+
+// Refund Modal State & Handlers
+let refundingIndex = null;
+function openRefundModal(index) {
+  if (!currentUser) return;
+  refundingIndex = index;
+  const item = items[index];
+  document.getElementById("refundAmtInput").value = item.refundedAmount || "";
+  document.getElementById("refundModal").classList.add("open");
+}
+
+function closeRefundModal() {
+  document.getElementById("refundModal").classList.remove("open");
+  refundingIndex = null;
+}
+
+function saveItemRefund() {
+  if (refundingIndex === null || !currentUser) return;
+  const amt = parseFloat(document.getElementById("refundAmtInput").value) || 0;
+  const item = items[refundingIndex];
+  const maxTotal = (item.price || 0) * (item.qty || 1);
+
+  if (amt > maxTotal) {
+    alert("Refund amount cannot exceed the total price of the item!");
+    return;
+  }
+
+  item.refundedAmount = amt;
+  save();
+  closeRefundModal();
+  render();
+}
+
+function clearItemRefund() {
+  if (refundingIndex === null || !currentUser) return;
+  items[refundingIndex].refundedAmount = 0;
+  save();
+  closeRefundModal();
   render();
 }
 
@@ -1821,20 +1996,31 @@ let draggedIndex = null;
 
 function render() {
   const need = items.filter(x => !x.bought);
-  const bought = items.filter(x => x.bought);
+  
+  // Sort bought items: non-refunded items first, refunded items automatically dropped to the bottom
+  const bought = items.filter(x => x.bought).sort((a, b) => {
+    const aRef = (a.refundedAmount || 0) > 0 ? 1 : 0;
+    const bRef = (b.refundedAmount || 0) > 0 ? 1 : 0;
+    return aRef - bRef;
+  });
 
   document.getElementById("count").textContent = items.length;
   document.getElementById("boughtCount").textContent = `${bought.length}/${items.length}`;
 
   const spent = bought.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
+  const totalRefunded = bought.reduce((s, x) => s + (x.refundedAmount || 0), 0);
+  const netSpent = spent - totalRefunded;
   const remaining = need.reduce((s, x) => s + (x.price || 0) * (x.qty || 1), 0);
   const grand = spent + remaining;
 
   document.getElementById("spent").textContent = money(spent);
+  document.getElementById("refundedStat").textContent = money(totalRefunded);
+  document.getElementById("netSpent").textContent = money(netSpent);
   document.getElementById("remaining").textContent = money(remaining);
   document.getElementById("grand").textContent = money(grand);
   document.getElementById("progress").textContent = `${bought.length}/${items.length} bought`;
 
+  // Render Need Grid
   const needGrid = document.getElementById("needGrid");
   needGrid.innerHTML = "";
   need.forEach((item) => {
@@ -1876,22 +2062,27 @@ function render() {
       });
     }
 
+    const itemTotal = (item.price || 0) * (item.qty || 1);
+    const unitPriceText = item.qty > 1 ? `<div class="unit-price">${money(item.price || 0)} each</div>` : '';
+
     div.innerHTML = `
       ${currentUser ? `<div class="drag-handle" title="Drag to reorder">::</div>` : ''}
       ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
       <div class="row">
         <div>
           <div class="name">${item.name}</div>
-          <div class="qty">Qty: ${item.qty} • ${money(item.price || 0)} each ${item.source ? `• ${item.source}` : ''}</div>
+          <div class="qty">Qty: ${item.qty} ${item.source ? `• ${item.source}` : ''}</div>
           ${item.note ? `<div class="tag" style="margin-top:6px">${item.note}</div>` : ''}
         </div>
-        <div class="price">${money((item.price || 0) * (item.qty || 1))}</div>
+        <div>
+          <div class="price">${money(itemTotal)}</div>
+          ${unitPriceText}
+        </div>
       </div>
       <div class="meta">
-        <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
-        <div class="admin-only" style="display:flex; gap:6px">
-          <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
-          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
+        <div class="action-group admin-only">
+          <button class="action edit" onclick="openModal(${originalIndex})" title="Edit Item">✎</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})" title="Delete Item">🗑</button>
           <button class="action buy" onclick="toggleBuy(${originalIndex})">Mark Bought ✓</button>
         </div>
       </div>
@@ -1907,12 +2098,14 @@ function render() {
     needGrid.appendChild(addCardNeed);
   }
 
+  // Render Bought Grid with Auto-Sorting & Green-to-Red Refund Buttons
   const boughtGrid = document.getElementById("boughtGrid");
   boughtGrid.innerHTML = "";
   bought.forEach((item) => {
     const originalIndex = items.indexOf(item);
     const div = document.createElement("div");
-    div.className = "item bought";
+    const isRefunded = item.refundedAmount && item.refundedAmount > 0;
+    div.className = isRefunded ? "item refunded" : "item bought";
     div.draggable = currentUser !== null;
 
     if (currentUser) {
@@ -1948,29 +2141,55 @@ function render() {
       });
     }
 
+    const itemTotal = (item.price || 0) * (item.qty || 1);
+    const unitPriceText = item.qty > 1 ? `<div class="unit-price">${money(item.price || 0)} each</div>` : '';
+    const refundInfoText = isRefunded ? `<div class="unit-price" style="color:var(--red)">Refunded: -${money(item.refundedAmount)}</div>` : '';
+
     div.innerHTML = `
       ${currentUser ? `<div class="drag-handle" title="Drag to reorder">::</div>` : ''}
-      ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box"><img src="${item.img}"></a>` : ''}
+      ${item.img ? `<a href="${item.link || '#'}" target="_blank" class="item-thumb-box">
+        <img src="${item.img}">
+        ${isRefunded ? `<div class="image-refund-badge">Refunded</div>` : ''}
+      </a>` : ''}
       <div class="row">
         <div>
           <div class="name">${item.name}</div>
-          <div class="qty">Qty: ${item.qty} • ${money(item.price || 0)} each</div>
-          <div class="tag" style="margin-top:6px; background:rgba(16,185,129,0.15); color:#10b981; border-color:rgba(16,185,129,0.3)">Bought ✓</div>
+          <div class="qty">Qty: ${item.qty}</div>
+          ${isRefunded ? `<div class="tag" style="margin-top:6px; background:rgba(239,68,68,0.15); color:#ef4444; border-color:rgba(239,68,68,0.3)">Refunded</div>` : `<div class="tag" style="margin-top:6px; background:rgba(16,185,129,0.15); color:#10b981; border-color:rgba(16,185,129,0.3)">Bought ✓</div>`}
         </div>
-        <div class="price">${money((item.price || 0) * (item.qty || 1))}</div>
+        <div>
+          <div class="price">${money(itemTotal)}</div>
+          ${unitPriceText}
+          ${refundInfoText}
+        </div>
       </div>
       <div class="meta">
-        <div>${item.link ? `<a href="${item.link}" target="_blank">Store Link ↗</a>` : ''}</div>
-        <div class="admin-only" style="display:flex; gap:6px">
-          <button class="action edit" onclick="openModal(${originalIndex})">✎</button>
-          <button class="action delete-btn" onclick="deleteItem(${originalIndex})">🗑</button>
-          <button class="action undo" onclick="toggleBuy(${originalIndex})">Undo</button>
+        <div class="action-group admin-only">
+          <div class="refund-split-btn ${isRefunded ? 'is-refunded' : ''}">
+            <button onclick="toggleInstantRefund(${originalIndex})" title="Toggle Full Refund">${isRefunded ? 'Refunded' : 'Refund'}</button>
+            <button class="gear-btn" onclick="openRefundModal(${originalIndex})" title="Partial / Custom Refund">⚙️</button>
+          </div>
+          <button class="action edit" onclick="openModal(${originalIndex})" title="Edit Item">✎</button>
+          <button class="action delete-btn" onclick="deleteItem(${originalIndex})" title="Delete Item">🗑</button>
+          <button class="action undo" onclick="toggleBuy(${originalIndex})" title="Move back to Need to Buy">Undo</button>
         </div>
       </div>
     `;
     boughtGrid.appendChild(div);
   });
 
+  // Render auto-updating plain text dropdown list of bought items
+  const boughtPlainTextList = document.getElementById("boughtPlainTextList");
+  boughtPlainTextList.innerHTML = "";
+  document.getElementById("boughtDropdownCount").textContent = bought.length;
+
+  bought.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = `${item.name} (Qty: ${item.qty})${item.refundedAmount && item.refundedAmount > 0 ? ' [REFUNDED]' : ''}`;
+    boughtPlainTextList.appendChild(li);
+  });
+
+  // Render Tutorials Grid
   const tutGrid = document.getElementById("tutorialsGrid");
   tutGrid.innerHTML = "";
   tutorials.forEach((t, index) => {
@@ -1984,10 +2203,10 @@ function render() {
           ${t.note ? `<div style="font-size:13px; color:var(--text-muted); margin-bottom:10px">${t.note}</div>` : ''}
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; pt:10px; border-top:1px solid var(--border-color)">
-          ${t.link ? `<a href="${t.link}" target="_blank">Watch Guide ↗</a>` : '<span></span>'}
-          <div class="admin-only" style="display:flex; gap:6px">
-            <button class="action edit" onclick="openTutModal(${index})">✎</button>
-            <button class="action delete-btn" onclick="deleteTutorial(${index})">🗑</button>
+          ${t.link ? `<a href="${t.link}" target="_blank" style="color:var(--accent); font-size:12px; font-weight:600">Watch Guide ↗</a>` : '<span></span>'}
+          <div class="action-group admin-only" style="width:auto">
+            <button class="action edit" onclick="openTutModal(${index})" title="Edit Tutorial">✎</button>
+            <button class="action delete-btn" onclick="deleteTutorial(${index})" title="Delete Tutorial">🗑</button>
           </div>
         </div>
       </div>
@@ -2003,6 +2222,7 @@ function render() {
     tutGrid.appendChild(addCardTut);
   }
 
+  // Render Notes Stream
   const notesStream = document.getElementById("notesStream");
   notesStream.innerHTML = "";
   notes.forEach((n, index) => {
@@ -2013,7 +2233,7 @@ function render() {
         <div class="entry-title">${n.title}</div>
         <div class="entry-badge">${n.category}</div>
       </div>
-      <div class="entry-body">${n.content}<div>
+      <div class="entry-body">${n.content}</div>
       <div class="entry-footer admin-only">
         <button class="action edit" onclick="editNote(${index})">✎ Edit</button>
         <button class="action delete-btn" onclick="deleteNote(${index})">🗑 Delete</button>
